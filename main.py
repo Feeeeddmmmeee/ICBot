@@ -11,6 +11,15 @@ async def on_ready():
     print('Bot is ready')
 
 @client.command()
+async def ping(ctx):
+    embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f'Pong! {round(client.latency * 1000)}ms',
+        timestamp=ctx.message.created_at
+    )
+    await ctx.send(embed=embed)
+
+@client.command()
 @has_permissions(administrator=True)
 async def verify(ctx, member : discord.Member):
     guild = ctx.guild
@@ -18,8 +27,12 @@ async def verify(ctx, member : discord.Member):
     for role in guild.roles:
         if role.name == 'IC player':
             await member.add_roles(role)
-
-    await ctx.send(f'An administrator has successfully verified **{member}**')
+    embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f'An administrator has successfully verified **{member}**',
+        timestamp=ctx.message.created_at
+    )
+    await ctx.send(embed=embed)
 
 @client.command()
 async def cheats(ctx):
