@@ -12,6 +12,7 @@ async def on_ready():
     print('Bot is ready')
 
 @client.command()
+@has_permissions(administrator=True)
 async def verify_everyone(ctx):
     for Member in ctx.guild.members:
         for role in Member.roles:
