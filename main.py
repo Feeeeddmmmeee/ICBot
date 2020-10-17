@@ -1,4 +1,5 @@
 import discord
+import random
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
@@ -9,6 +10,14 @@ async def on_ready():
     activity = discord.Activity(name="Intersection Controller", type=discord.ActivityType.playing)
     await client.change_presence(status=discord.Status.online, activity=activity)
     print('Bot is ready')
+
+@client.command()
+async def verify_everyone(ctx):
+    for Member in ctx.guild.members:
+        for role in Member.roles:
+            if role.name == 'IC player':
+                await Member.remove_roles(discord.utils.get(ctx.guild.roles, name='Unverified'))
+    await ctx.send('Done!')
 
 @client.command()
 async def ping(ctx):
@@ -23,15 +32,24 @@ async def ping(ctx):
 @has_permissions(administrator=True)
 async def verify(ctx, member : discord.Member):
     guild = ctx.guild
+    chance=random.randint(0, 100)
+    if chance < 5:
+        response=f'{member.mention} **just got Intersection Controlled!**'
+    else:
+        response=f'**An administrator has successfully verified** {member.mention}**!**'
 
     for role in guild.roles:
         if role.name == 'IC player':
             await member.add_roles(role)
+    for role in guild.roles:
+        if role.name == 'Unverified':
+            await member.remove_roles(role)
     embed = discord.Embed(
         colour=discord.Colour.from_rgb(66, 135, 245),
-        title=f'An administrator has successfully verified **{member}**',
+        description=response,
         timestamp=ctx.message.created_at
     )
+
     await ctx.send(embed=embed)
 
 @client.command()
