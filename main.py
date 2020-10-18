@@ -12,6 +12,21 @@ async def on_ready():
     print('Bot is ready')
 
 @client.command()
+async def suggest(ctx, *, suggestion):
+    embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=suggestion,
+    )
+    embed.set_footer(text=f'Suggested by {ctx.message.author}', icon_url=ctx.author.avatar_url)
+
+    channel = client.get_channel(600465489508171776)
+    reactions = await channel.send(embed=embed)
+    like = ctx.bot.get_emoji(759059895424909380)
+    dislike = ctx.bot.get_emoji(759060520455766036)
+    await reactions.add_reaction(like)
+    await reactions.add_reaction(dislike)
+
+@client.command()
 @has_permissions(administrator=True)
 async def verify_everyone(ctx):
     for Member in ctx.guild.members:
