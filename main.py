@@ -4,6 +4,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
 client = commands.Bot(command_prefix = 'ic ')
+token = open("token.txt", "r")
 
 @client.event
 async def on_ready():
@@ -78,4 +79,4 @@ async def cheats(ctx):
     )
     await ctx.send(embed=embed)
 
-client.run('NzQ3ODkyODQ2MTc4MzM2ODY4.X0VffQ.kShZQlSYj1nDK86BSkcxGNH5qpU')
+client.run(token.read())
