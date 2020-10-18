@@ -79,5 +79,4 @@ async def cheats(ctx):
     )
     await ctx.send(embed=embed)
 
-token.close()
 client.run(token.read())
