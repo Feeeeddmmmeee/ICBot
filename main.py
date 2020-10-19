@@ -21,11 +21,14 @@ async def suggest(ctx, *, suggestion):
     embed.set_footer(text=f'Suggested by {ctx.message.author}', icon_url=ctx.author.avatar_url)
 
     channel = client.get_channel(600465489508171776)
-    reactions = await channel.send(embed=embed)
+    likes = await channel.send(embed=embed)
+    #message = ctx
+    done = ctx.bot.get_emoji(719683592740929646)
     like = ctx.bot.get_emoji(759059895424909380)
     dislike = ctx.bot.get_emoji(759060520455766036)
-    await reactions.add_reaction(like)
-    await reactions.add_reaction(dislike)
+    await likes.add_reaction(like)
+    await likes.add_reaction(dislike)
+    #await message.add_reaction(done)
 
 @client.command()
 @has_permissions(administrator=True)
@@ -47,7 +50,7 @@ async def ping(ctx):
 
 @client.command()
 @has_permissions(administrator=True)
-async def verify(ctx, member : discord.Member):
+async def verify(ctx, member : discord.Member, *, nick):
     guild = ctx.guild
     chance=random.randint(0, 100)
     if chance < 5:
@@ -66,7 +69,8 @@ async def verify(ctx, member : discord.Member):
         description=response,
         timestamp=ctx.message.created_at
     )
-
+    await ctx.channel.purge(limit=1)
+    await member.edit(nick=nick)
     await ctx.send(embed=embed)
 
 @client.command()
