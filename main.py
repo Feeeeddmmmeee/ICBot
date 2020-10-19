@@ -5,6 +5,7 @@ from discord.ext.commands import has_permissions, MissingPermissions
 
 client = commands.Bot(command_prefix = 'ic ')
 token = open("token.txt", "r")
+client.remove_command('help')
 
 @client.event
 async def on_ready():
@@ -20,15 +21,28 @@ async def suggest(ctx, *, suggestion):
     )
     embed.set_footer(text=f'Suggested by {ctx.message.author}', icon_url=ctx.author.avatar_url)
 
-    channel = client.get_channel(600465489508171776)
+    channel = ctx.bot.get_channel(600465489508171776)
     likes = await channel.send(embed=embed)
-    #message = ctx
-    done = ctx.bot.get_emoji(719683592740929646)
     like = ctx.bot.get_emoji(759059895424909380)
     dislike = ctx.bot.get_emoji(759060520455766036)
     await likes.add_reaction(like)
     await likes.add_reaction(dislike)
-    #await message.add_reaction(done)
+    await ctx.message.add_reaction('📬')
+
+@client.command()
+async def help(ctx):
+    embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f'Need some help?',
+        timestamp=ctx.message.created_at
+    )
+    embed.add_field(name='Help', value='shows this command', inline=False)
+    embed.add_field(name='Suggest', value='suggest a new feature to the Dev! it will be posted in <#600465489508171776>', inline=False)
+    embed.add_field(name='Verify', value='verify a new user! required aarguments: `ic verify <user.mention> <nickname>` (admin-only)', inline=False)
+    embed.add_field(name='Ping', value="checks the client's latency", inline=False)
+    embed.add_field(name='Cheats', value='shows all the cheats', inline=False)
+
+    await ctx.send(embed=embed)
 
 @client.command()
 @has_permissions(administrator=True)
