@@ -1,5 +1,6 @@
 import discord
 import random
+import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
@@ -12,6 +13,70 @@ async def on_ready():
     activity = discord.Activity(name="Intersection Controller", type=discord.ActivityType.playing)
     await client.change_presence(status=discord.Status.online, activity=activity)
     print('Bot is ready')
+
+@client.command()
+async def trending(ctx, mode):
+    if mode.lower() == "tc":
+
+        response = requests.get("https://tl3.shadowtree-software.se/TL3BackEnd/rest/map/public/top/" + "2" +"/day?maxversion=999&trendsystem=1", verify = False)
+        api = response.json()
+
+        embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f"Today's first map in the trending category:",
+        timestamp=ctx.message.created_at
+        )
+        embed.add_field(name='Name', value=api[0]['name'], inline=False)
+        embed.add_field(name='Author', value=api[0]['authorName'], inline=False)
+        embed.add_field(name='Description', value=api[0]['desc'], inline=False)
+        embed.add_field(name='Likes', value=api[0]['votesUp'], inline=False)
+        embed.add_field(name='Dislikes', value=api[0]['votesDown'], inline=False)
+        embed.add_field(name='Favorites', value=api[0]['favorites'], inline=False)
+        embed.add_field(name='Map Version', value=api[0]['mapVersion'], inline=False)
+        await ctx.send(embed=embed)
+    elif mode.lower() == "sim":
+
+        response = requests.get("https://tl3.shadowtree-software.se/TL3BackEnd/rest/map/public/top/" + "1" +"/day?maxversion=999&trendsystem=1", verify = False)
+        api = response.json()
+
+        embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f"Today's first map in the trending category:",
+        timestamp=ctx.message.created_at
+        )
+        embed.add_field(name='Name', value=api[0]['name'], inline=False)
+        embed.add_field(name='Author', value=api[0]['authorName'], inline=False)
+        embed.add_field(name='Description', value=api[0]['desc'], inline=False)
+        embed.add_field(name='Likes', value=api[0]['votesUp'], inline=False)
+        embed.add_field(name='Dislikes', value=api[0]['votesDown'], inline=False)
+        embed.add_field(name='Favorites', value=api[0]['favorites'], inline=False)
+        embed.add_field(name='Map Version', value=api[0]['mapVersion'], inline=False)
+        await ctx.send(embed=embed)
+    elif mode.lower() == "misc":
+
+        response = requests.get("https://tl3.shadowtree-software.se/TL3BackEnd/rest/map/public/top/" + "3" +"/day?maxversion=999&trendsystem=1", verify = False)
+        api = response.json()
+
+        embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f"Today's first map in the trending category:",
+        timestamp=ctx.message.created_at
+        )
+        embed.add_field(name='Name', value=api[0]['name'], inline=False)
+        embed.add_field(name='Author', value=api[0]['authorName'], inline=False)
+        embed.add_field(name='Description', value=api[0]['desc'], inline=False)
+        embed.add_field(name='Likes', value=api[0]['votesUp'], inline=False)
+        embed.add_field(name='Dislikes', value=api[0]['votesDown'], inline=False)
+        embed.add_field(name='Favorites', value=api[0]['favorites'], inline=False)
+        embed.add_field(name='Map Version', value=api[0]['mapVersion'], inline=False)
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send(':warning: Please enter a valid mode!')
+
+@client.event
+async def on_command_error(ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send(':warning: Please pass in all required arguments.')
 
 @client.command()
 async def suggest(ctx, *, suggestion):
@@ -37,10 +102,13 @@ async def help(ctx):
         timestamp=ctx.message.created_at
     )
     embed.add_field(name='Help', value='shows this command', inline=False)
+    embed.add_field(name='Trending', value="Shows the map which is currenlt first in the trending category! required arguments: `ic trending <sim>/<tc>/<misc>` (uses IC's API)", inline=False)
     embed.add_field(name='Suggest', value='suggest a new feature to the Dev! it will be posted in <#600465489508171776>', inline=False)
-    embed.add_field(name='Verify', value='verify a new user! required aarguments: `ic verify <user.mention> <nickname>` (admin-only)', inline=False)
+    embed.add_field(name='Verify', value='verify a new user! required arguments: `ic verify <user.mention> <nickname>` (admin-only)', inline=False)
     embed.add_field(name='Ping', value="checks the client's latency", inline=False)
     embed.add_field(name='Cheats', value='shows all the cheats', inline=False)
+    embed.add_field(name='Ban', value='Bans a user! yay! (admin-only)', inline=False)
+    embed.add_field(name='Unban', value='Unbans a user (admin-only)', inline=False)
 
     await ctx.send(embed=embed)
 
@@ -95,6 +163,38 @@ async def cheats(ctx):
         description='**Here are the current "cheats" which will not break the game:**\n\n\n**Fps** - Displays an FPS counter.\n\n**RegnarDet?** - Forces the weather to rain.\n\n**TorsVrede** - Forces the weather to thunderstorm.\n\n**Solkatt** - Forces the weather to sunny.\n\n**Dimfilt** - Forces the weather to fog.\n\n**Väderlek or Vaderlek** - Sets the weather to the default dynamic setting.\n\n**Händelser or Handelser** - Random events are triggered as often as possible.\n\n**Ögonsten or Ogonsten** - Graphics settings not lowered when zooming out.\n\n**GömdaSaker or GomdaSaker** - Unlocks all decorative objects.\n\n**Uppdatera** - Opens the update link for your installation (shadowtree.se / Google Play / Amazon)\n\n**Blindstyre** - Disables vehicles stopping before crashed vehicles.',
         timestamp=ctx.message.created_at
     )
+    await ctx.send(embed=embed)
+
+@client.command()
+@has_permissions(ban_members=True)
+async def unban(ctx, *, member):
+    banned_users = await ctx.guild.bans()
+    member_name, member_discriminator = member.split('#')
+
+    for ban_entry in banned_users:
+        user = ban_entry.user
+
+        if(user.name, user.discriminator) == (member_name, member_discriminator):
+            await ctx.guild.unban(user)
+            embed = discord.Embed(
+                colour=discord.Colour.from_rgb(66, 135, 245),
+                title=f'Unbanned {user}',
+                timestamp=ctx.message.created_at
+            )
+        
+            await ctx.send(embed=embed)
+            return
+
+@client.command()
+@has_permissions(ban_members=True)
+async def ban(ctx, member : discord.Member, *, reason=None):
+    await member.ban(reason=reason)
+    embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f'Banned {member.name}',
+        timestamp=ctx.message.created_at
+    )
+        
     await ctx.send(embed=embed)
 
 client.run(token.read())
