@@ -88,12 +88,12 @@ async def suggest(ctx, *, suggestion):
     embed.set_footer(text=f'Suggested by {ctx.message.author}', icon_url=ctx.author.avatar_url)
 
     channel = ctx.bot.get_channel(600465489508171776)
+    await ctx.message.add_reaction('📬')
     likes = await channel.send(embed=embed)
     like = ctx.bot.get_emoji(759059895424909380)
     dislike = ctx.bot.get_emoji(759060520455766036)
     await likes.add_reaction(like)
     await likes.add_reaction(dislike)
-    await ctx.message.add_reaction('📬')
 
 @client.command()
 async def help(ctx):
@@ -113,6 +113,7 @@ async def help(ctx):
     embed.add_field(name='Unban', value='Unbans a user (admin-only)', inline=False)
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
+    #await ctx.message.add_reaction('📬')
     await ctx.send(embed=embed)
 
 @client.command()
