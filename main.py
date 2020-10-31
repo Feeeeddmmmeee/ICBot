@@ -1,4 +1,5 @@
 import discord
+import datetime
 import random
 import asyncio
 import requests
@@ -14,6 +15,56 @@ async def on_ready():
     activity = discord.Activity(name="Intersection Controller", type=discord.ActivityType.playing)
     await client.change_presence(status=discord.Status.online, activity=activity)
     print('Bot is ready')
+
+@client.command()
+async def search(ctx, *, name):
+    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
+    api = response.json()
+    
+    embed = discord.Embed(
+    colour=discord.Colour.from_rgb(66, 135, 245),
+    title=f"Results of searching `{name}`:",
+    timestamp=ctx.message.created_at
+    )
+    for item in api:
+        response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{item['objectId']}", verify = False)
+        api = response.json()
+        embed.add_field(name=api['name'], value=f"Followers: {api['followers']} | Last login: {datetime.datetime.fromtimestamp(round(api['lastLogin']/1000.0))}", inline=False)
+    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+    await ctx.send(embed=embed)    
+
+@client.command()
+async def profile(ctx, *, name):
+    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
+    api = response.json()
+    i = 0
+
+    while(i<=len(api)):
+        if api[i]['name'] == name:
+            response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{api[i]['objectId']}", verify = False)
+            api = response.json()
+            icname = api['name']
+            icfollowers = api['followers']
+            iclastlogin = api['lastLogin']
+            icmaps = api['maps']
+            icid = api['objectId']
+
+            embed = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            title=f"Profile of {icname}",
+            timestamp=ctx.message.created_at
+            )
+            embed.add_field(name='ID:', value=f'{icid}', inline=False)
+            embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
+            embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
+            embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+            await ctx.send(embed=embed)
+            i = i + 1
+        else:
+            i = i + 1
 
 @client.command()
 async def list(ctx, mode):
@@ -103,6 +154,7 @@ async def help(ctx):
         timestamp=ctx.message.created_at
     )
     embed.add_field(name='Help', value='shows this command', inline=False)
+    embed.add_field(name='Profile', value='checks a profile of a user')
     embed.add_field(name='Trending', value="Shows the map which is currenly first in the trending category! required arguments: `ic trending <sim>/<tc>/<misc>` (uses IC's API)", inline=False)
     embed.add_field(name='List', value="Shows a list of top 12 maps from the trending category! required arguments: `ic list <sim>/<tc>/<misc>` (uses IC's API)")
     embed.add_field(name='Suggest', value='suggest a new feature to the Dev! it will be posted in <#600465489508171776>', inline=False)
