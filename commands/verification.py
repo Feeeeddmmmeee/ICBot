@@ -21,7 +21,6 @@ class Commands(commands.Cog):
         api = answer.json()
         icname = api['name']
 
-        chance=random.randint(0, 100)
 
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
@@ -30,11 +29,6 @@ class Commands(commands.Cog):
 
         with open('accounts.json', 'w') as f:
             json.dump(accounts, f, indent=4)
-
-        if chance < 5:
-            response=f'{member.mention} **just got Intersection Controlled!**'
-        else:
-            response=f'**An administrator has successfully verified** {member.mention}**!**'
 
         for role in guild.roles:
             if role.name == 'IC player':
@@ -46,7 +40,7 @@ class Commands(commands.Cog):
 
         embed = discord.Embed(
             colour=discord.Colour.from_rgb(66, 135, 245),
-            description=response,
+            description=f'**An administrator has successfully verified** {member.mention}**!**',
             timestamp=ctx.message.created_at
         )
         embed.set_footer(text=f'Verified by {ctx.author}', icon_url=ctx.author.avatar_url)
