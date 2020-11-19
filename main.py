@@ -10,7 +10,7 @@ import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
-client = commands.Bot(command_prefix = 'ic  ')
+client = commands.Bot(command_prefix = 'ic ')
 token = open("token.txt", "r")
 client.remove_command('help')
 
