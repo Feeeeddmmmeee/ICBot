@@ -1,14 +1,22 @@
 import discord
 import datetime
 import random
+import json
+import os
+import traceback
+import sys
 import asyncio
 import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
-client = commands.Bot(command_prefix = 'ic ')
+client = commands.Bot(command_prefix = 'ic  ')
 token = open("token.txt", "r")
 client.remove_command('help')
+
+for filename in os.listdir('./commands'):
+    if filename.endswith('.py'):
+        client.load_extension(f'commands.{filename[:-3]}')
 
 @client.event
 async def on_ready():
@@ -16,23 +24,38 @@ async def on_ready():
     await client.change_presence(status=discord.Status.online, activity=activity)
     print('Bot is ready')
 
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.send(':warning: Please pass in all required arguments.')
+    else:
+        # All other Errors not returned come here. And we can just print the default TraceBack.
+        print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
 @client.command()
 async def search(ctx, *, name):
     response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
     api = response.json()
     
-    embed = discord.Embed(
-    colour=discord.Colour.from_rgb(66, 135, 245),
-    title=f"Results of searching `{name}`:",
-    timestamp=ctx.message.created_at
-    )
-    for item in api:
-        response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{item['objectId']}", verify = False)
-        api = response.json()
-        embed.add_field(name=api['name'], value=f"Followers: {api['followers']} | Last login: {datetime.datetime.fromtimestamp(round(api['lastLogin']/1000.0))}", inline=False)
-    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    if not(len(api)):
+        await ctx.send(":warning: We couldn't find any users with this name!")
+        return
 
-    await ctx.send(embed=embed)    
+    else:
+
+        embed = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title=f"Results of searching `{name}`:",
+        timestamp=ctx.message.created_at
+        )
+        for item in api:
+            response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{item['objectId']}", verify = False)
+            api = response.json()
+            embed.add_field(name=api['name'], value=f"Followers: {api['followers']} | ID: {api['objectId']}", inline=False)
+                
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=embed)    
 
 @client.command()
 async def profile(ctx, *, name):
@@ -40,31 +63,36 @@ async def profile(ctx, *, name):
     api = response.json()
     i = 0
 
-    while(i<=len(api)):
-        if api[i]['name'] == name:
-            response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{api[i]['objectId']}", verify = False)
-            api = response.json()
-            icname = api['name']
-            icfollowers = api['followers']
-            iclastlogin = api['lastLogin']
-            icmaps = api['maps']
-            icid = api['objectId']
+    if not(len(api)):
+        await ctx.send(":warning: We couldn't find any users with this name!")
+        return
 
-            embed = discord.Embed(
-            colour=discord.Colour.from_rgb(66, 135, 245),
-            title=f"Profile of {icname}",
-            timestamp=ctx.message.created_at
-            )
-            embed.add_field(name='ID:', value=f'{icid}', inline=False)
-            embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
-            embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
-            embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    else:
+        while(i<=len(api)):
+            if api[i]['name'] == name:
+                response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{api[i]['objectId']}", verify = False)
+                api = response.json()
+                icname = api['name']
+                icfollowers = api['followers']
+                iclastlogin = api['lastLogin']
+                icmaps = api['maps']
+                icid = api['objectId']
 
-            await ctx.send(embed=embed)
-            i = i + 1
-        else:
-            i = i + 1
+                embed = discord.Embed(
+                colour=discord.Colour.from_rgb(66, 135, 245),
+                title=f"Profile of {icname}",
+                timestamp=ctx.message.created_at
+                )
+                embed.add_field(name='ID:', value=f'{icid}', inline=False)
+                embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
+                embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
+                embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+                await ctx.send(embed=embed)
+                i = i + 1
+            else:
+                i = i + 1
 
 @client.command()
 async def list(ctx, mode):
@@ -125,26 +153,36 @@ async def trending(ctx, mode):
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
 
-@client.event
-async def on_command_error(ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument):
-            await ctx.send(':warning: Please pass in all required arguments.')
-
+'''
 @client.command()
 async def suggest(ctx, *, suggestion):
     embed = discord.Embed(
         colour=discord.Colour.from_rgb(66, 135, 245),
-        title=suggestion,
+        timestamp=ctx.message.created_at,
     )
-    embed.set_footer(text=f'Suggested by {ctx.message.author}', icon_url=ctx.author.avatar_url)
+    embed.add_field(name="Submitter", value=ctx.author.display_name, inline=False)
+    embed.add_field(name="Suggestion", value=suggestion, inline=False)
+    embed.set_thumbnail(url=ctx.author.avatar_url)
 
-    channel = ctx.bot.get_channel(600465489508171776)
+    channel = ctx.bot.get_channel(744653826799435809)#600465489508171776
+    #like = ctx.bot.get_emoji(759059895424909380)
+    #dislike = ctx.bot.get_emoji(759060520455766036)
     await ctx.message.add_reaction('📬')
     likes = await channel.send(embed=embed)
-    like = ctx.bot.get_emoji(759059895424909380)
-    dislike = ctx.bot.get_emoji(759060520455766036)
-    await likes.add_reaction(like)
-    await likes.add_reaction(dislike)
+    #await likes.add_reaction(like)
+    #await likes.add_reaction(dislike)
+    await likes.add_reaction('🤍')
+
+    dm = discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        title='Suggestion has been sent!'
+    )
+    dm.add_field(name=" ", value=f'Hey {ctx.author.mention}, your suggestion has been sent to the <#600465489508171776> channel so that people can like/dislike it!', inline=False)
+    dm.add_field(name=" ", value='Please wait until someone votes for it.', inline=False)
+    dm.add_field(name="Your suggestion was:", value=f'`{suggestion}`', inline=False)
+    dm.set_footer(text=f'Replied to a suggestion by: {ctx.message.author}', icon_url=ctx.author.avatar_url)
+
+    await ctx.author.send(embed=dm)'''
 
 @client.command()
 async def help(ctx):
@@ -154,29 +192,20 @@ async def help(ctx):
         timestamp=ctx.message.created_at
     )
     embed.add_field(name='Help', value='Shows this command', inline=False)
-    embed.add_field(name='Search', value='Searches for users')
-    embed.add_field(name='Profile', value='Checks a profile of a user')
-    embed.add_field(name='Trending', value="Shows the map which is currenly first in the trending category! required arguments: `ic trending <sim>/<tc>/<misc>` (uses IC's API)", inline=False)
-    embed.add_field(name='List', value="Shows a list of top 12 maps from the trending category! required arguments: `ic list <sim>/<tc>/<misc>` (uses IC's API)")
+    embed.add_field(name='Userinfo', value='Gets user info from a mention! required arguments: `ic userinfo <@mention>` (requires a linked account)', inline=False)
+    embed.add_field(name='Link', value='Links a IC account to a Discord account (admin only)', inline=False)
+    embed.add_field(name='Unlink', value='Unlinks a IC account from a Discord account (admin only)', inline=False)
+    embed.add_field(name='Search', value='Searches for users', inline=False)
+    embed.add_field(name='Profile', value='Checks a profile of a user', inline=False)
+    embed.add_field(name='Trending', value="Shows the map which is currenly first in the trending category! required arguments: `ic trending <sim>/<tc>/<misc>`", inline=False)
+    embed.add_field(name='List', value="Shows a list of top 12 maps from the trending category! required arguments: `ic list <sim>/<tc>/<misc>`")
     embed.add_field(name='Suggest', value='Suggest a new feature to the Dev! it will be posted in <#600465489508171776>', inline=False)
-    embed.add_field(name='Verify', value='Verify a new user! required arguments: `ic verify <user.mention> <nickname>` (admin-only)', inline=False)
+    embed.add_field(name='Verify', value='Verify a new user! required arguments: `ic verify <@mention> <id>` (admin-only)', inline=False)
     embed.add_field(name='Ping', value="Checks the client's latency", inline=False)
     embed.add_field(name='Cheats', value='Shows all the cheats', inline=False)
-    embed.add_field(name='Ban', value='Bans a user! yay! (admin-only)', inline=False)
-    embed.add_field(name='Unban', value='Unbans a user (admin-only)', inline=False)
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
-    #await ctx.message.add_reaction('📬')
     await ctx.send(embed=embed)
-
-@client.command()
-@has_permissions(administrator=True)
-async def verify_everyone(ctx):
-    for Member in ctx.guild.members:
-        for role in Member.roles:
-            if role.name == 'IC player':
-                await Member.remove_roles(discord.utils.get(ctx.guild.roles, name='Unverified'))
-    await ctx.send('Done!')
 
 @client.command()
 async def ping(ctx):
@@ -187,7 +216,7 @@ async def ping(ctx):
     )
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
-
+'''
 @client.command()
 @has_permissions(administrator=True)
 async def verify(ctx, member : discord.Member, *, nick):
@@ -212,7 +241,7 @@ async def verify(ctx, member : discord.Member, *, nick):
     embed.set_footer(text=f'Verified by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.channel.purge(limit=1)
     await member.edit(nick=nick)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed)'''
 
 @client.command()
 async def cheats(ctx):
@@ -223,38 +252,6 @@ async def cheats(ctx):
         timestamp=ctx.message.created_at
     )
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-    await ctx.send(embed=embed)
-
-@client.command()
-@has_permissions(ban_members=True)
-async def unban(ctx, *, member):
-    banned_users = await ctx.guild.bans()
-    member_name, member_discriminator = member.split('#')
-
-    for ban_entry in banned_users:
-        user = ban_entry.user
-
-        if(user.name, user.discriminator) == (member_name, member_discriminator):
-            await ctx.guild.unban(user)
-            embed = discord.Embed(
-                colour=discord.Colour.from_rgb(66, 135, 245),
-                title=f'Unbanned {user}',
-                timestamp=ctx.message.created_at
-            )
-            embed.set_footer(text=f'Unbanned by {ctx.author}', icon_url=ctx.author.avatar_url)
-            await ctx.send(embed=embed)
-            return
-
-@client.command()
-@has_permissions(ban_members=True)
-async def ban(ctx, member : discord.Member, *, reason=None):
-    await member.ban(reason=reason)
-    embed = discord.Embed(
-        colour=discord.Colour.from_rgb(66, 135, 245),
-        title=f'Banned {member.name}',
-        timestamp=ctx.message.created_at
-    )
-    embed.set_footer(text=f'Banned by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
 
 client.run(token.read())
