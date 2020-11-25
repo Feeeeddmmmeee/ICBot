@@ -80,13 +80,14 @@ async def profile(ctx, *, name):
 
                 embed = discord.Embed(
                 colour=discord.Colour.from_rgb(66, 135, 245),
-                title=f"Profile of {icname}",
+                title=f"Profile of ``{icname}``",
                 timestamp=ctx.message.created_at
                 )
-                embed.add_field(name='ID:', value=f'{icid}', inline=False)
-                embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
-                embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
-                embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
+                embed.add_field(name='Stats', value=f'Nickname: {icname}\nID: {icid}\nFollowers: {icfollowers}\nLast login: {datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}\nAmount of maps: {icmaps}', inline=False)
+                #embed.add_field(name='ID:', value=f'{icid}', inline=False)
+                #embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
+                #embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
+                #embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
                 await ctx.send(embed=embed)
@@ -153,37 +154,6 @@ async def trending(ctx, mode):
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
 
-'''
-@client.command()
-async def suggest(ctx, *, suggestion):
-    embed = discord.Embed(
-        colour=discord.Colour.from_rgb(66, 135, 245),
-        timestamp=ctx.message.created_at,
-    )
-    embed.add_field(name="Submitter", value=ctx.author.display_name, inline=False)
-    embed.add_field(name="Suggestion", value=suggestion, inline=False)
-    embed.set_thumbnail(url=ctx.author.avatar_url)
-
-    channel = ctx.bot.get_channel(744653826799435809)#600465489508171776
-    #like = ctx.bot.get_emoji(759059895424909380)
-    #dislike = ctx.bot.get_emoji(759060520455766036)
-    await ctx.message.add_reaction('📬')
-    likes = await channel.send(embed=embed)
-    #await likes.add_reaction(like)
-    #await likes.add_reaction(dislike)
-    await likes.add_reaction('🤍')
-
-    dm = discord.Embed(
-        colour=discord.Colour.from_rgb(66, 135, 245),
-        title='Suggestion has been sent!'
-    )
-    dm.add_field(name=" ", value=f'Hey {ctx.author.mention}, your suggestion has been sent to the <#600465489508171776> channel so that people can like/dislike it!', inline=False)
-    dm.add_field(name=" ", value='Please wait until someone votes for it.', inline=False)
-    dm.add_field(name="Your suggestion was:", value=f'`{suggestion}`', inline=False)
-    dm.set_footer(text=f'Replied to a suggestion by: {ctx.message.author}', icon_url=ctx.author.avatar_url)
-
-    await ctx.author.send(embed=dm)'''
-
 @client.command()
 async def help(ctx):
     embed = discord.Embed(
@@ -201,6 +171,7 @@ async def help(ctx):
     embed.add_field(name='List', value="Shows a list of top 12 maps from the trending category! required arguments: `ic list <sim>/<tc>/<misc>`")
     embed.add_field(name='Suggest', value='Suggest a new feature to the Dev! it will be posted in <#600465489508171776>', inline=False)
     embed.add_field(name='Verify', value='Verify a new user! required arguments: `ic verify <@mention> <id>` (admin-only)', inline=False)
+    embed.add_field(name='Rules', value='Checks a specified server rule. reqired argments: `ic rules <number>`', inline=False)
     embed.add_field(name='Ping', value="Checks the client's latency", inline=False)
     embed.add_field(name='Cheats', value='Shows all the cheats', inline=False)
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
@@ -247,8 +218,8 @@ async def verify(ctx, member : discord.Member, *, nick):
 async def cheats(ctx):
     embed = discord.Embed(
         colour=discord.Colour.from_rgb(66, 135, 245),
-        title="Cheats",
-        description='**Here are the current "cheats" which will not break the game:**\n\n\n**Fps** - Displays an FPS counter.\n\n**RegnarDet?** - Forces the weather to rain.\n\n**TorsVrede** - Forces the weather to thunderstorm.\n\n**Solkatt** - Forces the weather to sunny.\n\n**Dimfilt** - Forces the weather to fog.\n\n**Väderlek or Vaderlek** - Sets the weather to the default dynamic setting.\n\n**Händelser or Handelser** - Random events are triggered as often as possible.\n\n**Ögonsten or Ogonsten** - Graphics settings not lowered when zooming out.\n\n**GömdaSaker or GomdaSaker** - Unlocks all decorative objects.\n\n**Uppdatera** - Opens the update link for your installation (shadowtree.se / Google Play / Amazon)\n\n**Blindstyre** - Disables vehicles stopping before crashed vehicles.',
+        title='Here are the current "cheats" which will not break the game:',
+        description='\n\n**Fps** - Displays an FPS counter.\n\n**RegnarDet?** - Forces the weather to rain.\n\n**TorsVrede** - Forces the weather to thunderstorm.\n\n**Solkatt** - Forces the weather to sunny.\n\n**Dimfilt** - Forces the weather to fog.\n\n**Väderlek or Vaderlek** - Sets the weather to the default dynamic setting.\n\n**Händelser or Handelser** - Random events are triggered as often as possible.\n\n**Ögonsten or Ogonsten** - Graphics settings not lowered when zooming out.\n\n**GömdaSaker or GomdaSaker** - Unlocks all decorative objects.\n\n**Uppdatera** - Opens the update link for your installation ([shadowtree.se](https://shadowtree-software.se/tr3/lanes3.apk) / [Google Play](https://play.google.com/store/apps/details?id=se.shadowtree.software.trafficbuilder) / [Amazon](https://www.amazon.com/gp/mas/dl/android?p=se.shadowtree.software.trafficbuilder))\n\n**Blindstyre** - Disables vehicles stopping before crashed vehicles.',
         timestamp=ctx.message.created_at
     )
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)

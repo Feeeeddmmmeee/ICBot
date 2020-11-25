@@ -52,7 +52,7 @@ class Commands(commands.Cog):
 
     @commands.command()
     @has_permissions(administrator=True)
-    async def link(self, ctx, member : discord.Member, id):
+    async def link(self, error, ctx, member : discord.Member, id):
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
 
@@ -76,8 +76,9 @@ class Commands(commands.Cog):
 
         await ctx.send(f"Successfully unlinked an account from {member.mention}!")
 
-    @commands.command(alises = ['info', 'user'])
-    async def userinfo(self, ctx, member : discord.Member):
+    @commands.command(aliases = ['info', 'user', 'ui'])
+    async def userinfo(self, ctx, member : discord.Member=None):
+        member = ctx.author if not member else member
         id = member.id
         print(id)
         with open('accounts.json', 'r') as f:
@@ -95,13 +96,15 @@ class Commands(commands.Cog):
 
         embed = discord.Embed(
         colour=discord.Colour.from_rgb(66, 135, 245),
-        title=f"Profile of {icname}",
+        #title=f"Profile of {member}",
         timestamp=ctx.message.created_at
         )
-        embed.add_field(name='ID:', value=f'{icid}', inline=False)
-        embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
-        embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
-        embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
+        embed.set_author(name=member, icon_url=member.avatar_url)
+        embed.add_field(name='Intersection Controller', value=f'Nickname: {icname}\nID: {icid}\nFollowers: {icfollowers}\nLast login: {datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}\nAmount of maps: {icmaps}', inline=False)
+        #embed.add_field(name='ID:', value=f'{icid}', inline=False)
+        #embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
+        #embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
+        #embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
         await ctx.send(embed=embed)
