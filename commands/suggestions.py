@@ -14,6 +14,7 @@ class Commands(commands.Cog):
         self.client = client
 
     @commands.command()
+    @commands.cooldown(1, 3600, commands.BucketType.user)
     async def suggest(self, ctx, *, suggestion):
         embed = discord.Embed(
             colour=discord.Colour.from_rgb(66, 135, 245),
