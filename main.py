@@ -10,7 +10,7 @@ import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
-client = commands.Bot(command_prefix = 'ic ')
+client = commands.Bot(command_prefix = 'ic  ')
 token = open("token.txt", "r")
 client.remove_command('help')
 
@@ -26,8 +26,12 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send(':warning: Please pass in all required arguments.')
+    if isinstance(error, commands.errors.MissingPermissions):
+        await ctx.send(":warning: You don't have enough permissions to run this command!")
+    elif isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.send(':warning: Please pass in all required arguments!')
+    elif isinstance(error, commands.errors.CommandOnCooldown):
+        await ctx.send(':warning: Please wait before using this command again!')
     else:
         # All other Errors not returned come here. And we can just print the default TraceBack.
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
