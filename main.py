@@ -26,8 +26,14 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send(':warning: Please pass in all required arguments.')
+    if isinstance(error, commands.errors.MissingPermissions):
+        await ctx.send(":warning: You don't have enough permissions to run this command!")
+    elif isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.send(':warning: Please pass in all required arguments!')
+    elif isinstance(error, commands.errors.CommandOnCooldown):
+        await ctx.send(':warning: Please wait before using this command again!')
+    elif isinstance(error, commands.errors.CheckFailure):
+        await ctx.send(':warning: Seems like you were banned from using this command!')
     else:
         # All other Errors not returned come here. And we can just print the default TraceBack.
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)

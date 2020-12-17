@@ -25,7 +25,7 @@ class Commands(commands.Cog):
             embed = discord.Embed(
                 colour=discord.Colour.from_rgb(66, 135, 245),
                 title='2. Spamming Content',
-                description='Spamming (5+ of same messages) any channel will result in a 10+ minute mute. (except <#597986251659935755>)'
+                description='Repeatedly sending unnecessary and random messages (5 or more times) in any channel will result in a 10+ minute mute. (except <#597986251659935755>)'
             )
         elif number == '3':
             embed = discord.Embed(

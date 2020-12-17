@@ -8,12 +8,23 @@ import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
+def isNotBanned(ctx):
+    with open('banned_users.json', 'r') as f:
+        banned = json.load(f)
+
+    if str(ctx.author.id) in banned:
+        return False
+    else:
+        return True
+
 class Commands(commands.Cog):
     
     def __init__(self, client):
         self.client = client
 
     @commands.command()
+    @commands.check(isNotBanned)
+    @commands.cooldown(1, 3600, commands.BucketType.user)
     async def suggest(self, ctx, *, suggestion):
         embed = discord.Embed(
             colour=discord.Colour.from_rgb(66, 135, 245),
@@ -41,6 +52,33 @@ class Commands(commands.Cog):
         dm.add_field(name="Your suggestion was:", value=f'`{suggestion}`', inline=False)
         dm.set_footer(text=f'Replied to a suggestion by: {ctx.message.author}', icon_url=ctx.author.avatar_url)
         await ctx.author.send(embed=dm)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def ban(self, ctx, member : discord.Member):
+        with open('banned_users.json', 'r') as f:
+            banned = json.load(f)
+
+        banned[str(member.id)] = "BANNED"
+
+        with open('banned_users.json', 'w') as f:
+            json.dump(banned, f, indent=4)
+        
+        await ctx.send(f"Successfully banned {member.mention}!")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def unban(self, ctx, member : discord.Member):
+        with open('banned_users.json', 'r') as f:
+            banned = json.load(f)
+
+        banned.pop(str(member.id))
+
+        with open('banned_users.json', 'w') as f:
+            json.dump(banned, f, indent=4)
+
+        await ctx.send(f"Successfully unbanned {member.mention}!")
+
 
 def setup(client):
     client.add_cog(Commands(client))

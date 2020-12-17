@@ -17,6 +17,7 @@ class Commands(commands.Cog):
     @has_permissions(administrator=True)
     async def verify(self, ctx, member : discord.Member, id):
         guild = ctx.guild
+        channel = ctx.bot.get_channel(469863046408306699)
         answer = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
         api = answer.json()
         icname = api['name']
@@ -50,9 +51,26 @@ class Commands(commands.Cog):
 
         await ctx.send(embed=embed)
 
+        welcome = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            description="A new user has been verified!"
+        )
+        welcome.set_author(name=member, icon_url=member.avatar_url)
+
+        await channel.send(embed=welcome)
+
+        dm = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            title='You have been verified!'
+        )
+        dm.add_field(name="Hey! :wave:", value=f'Hey {member.mention}, You have been successfully verified by a staff member!', inline=False)
+        dm.add_field(name="But.. what does that mean?", value='We have linked your IC account to your discord and now people can run the `ic userinfo <mention>` command to view your profile!', inline=False)
+        dm.set_footer(text=f'You were verified by: {ctx.author}', icon_url=ctx.author.avatar_url)
+        await member.send(embed=dm)
+
     @commands.command()
     @has_permissions(administrator=True)
-    async def link(self, error, ctx, member : discord.Member, id):
+    async def link(self, ctx, member : discord.Member, id):
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
 
@@ -80,7 +98,6 @@ class Commands(commands.Cog):
     async def userinfo(self, ctx, member : discord.Member=None):
         member = ctx.author if not member else member
         id = member.id
-        print(id)
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
 
@@ -96,15 +113,10 @@ class Commands(commands.Cog):
 
         embed = discord.Embed(
         colour=discord.Colour.from_rgb(66, 135, 245),
-        #title=f"Profile of {member}",
         timestamp=ctx.message.created_at
         )
         embed.set_author(name=member, icon_url=member.avatar_url)
         embed.add_field(name='Intersection Controller', value=f'Nickname: {icname}\nID: {icid}\nFollowers: {icfollowers}\nLast login: {datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}\nAmount of maps: {icmaps}', inline=False)
-        #embed.add_field(name='ID:', value=f'{icid}', inline=False)
-        #embed.add_field(name=f'Followers:', value=f'{icfollowers}', inline=False)
-        #embed.add_field(name='Last login:', value=f'{datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}', inline=False)
-        #embed.add_field(name='Amount of maps:', value=f'{icmaps}', inline=False)
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
         await ctx.send(embed=embed)
