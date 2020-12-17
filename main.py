@@ -171,6 +171,8 @@ async def help(ctx):
     embed.add_field(name='Userinfo', value='Gets user info from a mention! required arguments: `ic userinfo <@mention>` (requires a linked account)', inline=False)
     embed.add_field(name='Link', value='Links a IC account to a Discord account (admin only)', inline=False)
     embed.add_field(name='Unlink', value='Unlinks a IC account from a Discord account (admin only)', inline=False)
+    embed.add_field(name='Ban', value='Banned users can no longer use `ic suggest` (admin only)', inline=False)
+    embed.add_field(name='Unban', value='Unbans a user (admin only)', inline=False)
     embed.add_field(name='Search', value='Searches for users', inline=False)
     embed.add_field(name='Profile', value='Checks a profile of a user', inline=False)
     embed.add_field(name='Trending', value="Shows the map which is currenly first in the trending category! required arguments: `ic trending <sim>/<tc>/<misc>`", inline=False)
