@@ -14,7 +14,7 @@ class Commands(commands.Cog):
         self.client = client
 
     @commands.command()
-    @has_permissions(administrator=True)
+    @commands.has_permissions(manage_roles=True)
     async def verify(self, ctx, member : discord.Member, id):
         guild = ctx.guild
         channel = ctx.bot.get_channel(469863046408306699)
@@ -69,7 +69,7 @@ class Commands(commands.Cog):
         await member.send(embed=dm)
 
     @commands.command()
-    @has_permissions(administrator=True)
+    @commands.has_permissions(manage_roles=True)
     async def link(self, ctx, member : discord.Member, id):
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
@@ -82,7 +82,7 @@ class Commands(commands.Cog):
         await ctx.send(f"Successfully linked an account to {member.mention}!")
 
     @commands.command()
-    @has_permissions(administrator=True)
+    @commands.has_permissions(manage_roles=True)
     async def unlink(self, ctx, member : discord.Member):
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
@@ -101,25 +101,28 @@ class Commands(commands.Cog):
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
 
-        icId = accounts[str(id)]
+        if str(member.id) in accounts:
+            icId = accounts[str(id)]
 
-        response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{icId}", verify = False)
-        api = response.json()
-        icname = api['name']
-        icfollowers = api['followers']
-        iclastlogin = api['lastLogin']
-        icmaps = api['maps']
-        icid = api['objectId']
+            response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{icId}", verify = False)
+            api = response.json()
+            icname = api['name']
+            icfollowers = api['followers']
+            iclastlogin = api['lastLogin']
+            icmaps = api['maps']
+            icid = api['objectId']
 
-        embed = discord.Embed(
-        colour=discord.Colour.from_rgb(66, 135, 245),
-        timestamp=ctx.message.created_at
-        )
-        embed.set_author(name=member, icon_url=member.avatar_url)
-        embed.add_field(name='Intersection Controller', value=f'Nickname: {icname}\nID: {icid}\nFollowers: {icfollowers}\nLast login: {datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}\nAmount of maps: {icmaps}', inline=False)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            timestamp=ctx.message.created_at
+            )
+            embed.set_author(name=member, icon_url=member.avatar_url)
+            embed.add_field(name='Intersection Controller', value=f'Nickname: {icname}\nID: {icid}\nFollowers: {icfollowers}\nLast login: {datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}\nAmount of maps: {icmaps}', inline=False)
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
-        await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(f":warning: Seems like {member.mention}'s account is not linked to his discord! If you'd like to link it please contact the administrators.")
 
 
 def setup(client):

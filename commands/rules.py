@@ -13,7 +13,7 @@ class Commands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command()
+    @commands.command(aliases = ["rule"])
     async def rules(self, ctx, number):
         if number == '1':
             embed = discord.Embed(

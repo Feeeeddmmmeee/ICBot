@@ -54,8 +54,8 @@ class Commands(commands.Cog):
         await ctx.author.send(embed=dm)
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def ban(self, ctx, member : discord.Member, *, reason = None):
+    @commands.has_permissions(manage_roles=True)
+    async def ban(self, ctx, member : discord.Member, *, reason = "REASON_NOT_SPECIFIED"):
         with open('banned_users.json', 'r') as f:
             banned = json.load(f)
 
@@ -64,14 +64,12 @@ class Commands(commands.Cog):
         with open('banned_users.json', 'w') as f:
             json.dump(banned, f, indent=4)
 
-        if reason == None:
-            reason = "REASON_NOT_SPECIFIED"
         
         await ctx.send(f"Successfully banned {member.mention}!")
         await member.send(f"You have been banned from suggesting things in Intersection Controller for `{reason}`")
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_roles=True)
     async def unban(self, ctx, member : discord.Member):
         with open('banned_users.json', 'r') as f:
             banned = json.load(f)

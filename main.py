@@ -233,4 +233,4 @@ async def cheats(ctx):
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
 
-client.run("NzY1NjM0MTQwNjg2Nzc4Mzk5.X4XqWw.IlkQaVqL-5HLgOyNXg5D8KsPTdw")
+client.run(token.read())
