@@ -13,10 +13,48 @@ class Commands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.command(aliases=['sendoutside'])
+    @commands.has_permissions(manage_roles=True)
+    async def outsider(self, ctx, member : discord.Member):
+        outsider = discord.utils.get(ctx.guild.roles,name='outsider :(')
+        unverified = discord.utils.get(ctx.guild.roles,name="Unverified")
+
+        await member.add_roles(outsider)
+
+        await member.remove_roles(unverified)
+
+        embed = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            description=f'**An administrator has successfully verified** {member.mention}**!**',
+            timestamp=ctx.message.created_at
+        )
+        embed.set_footer(text=f'Verified by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.has_permissions(manage_roles=True)
+    async def bypass(self, ctx, member : discord.Member):
+        player = discord.utils.get(ctx.guild.roles,name="IC player")
+        unverified = discord.utils.get(ctx.guild.roles,name="Unverified")
+
+        await member.add_roles(player)
+
+        await member.remove_roles(unverified)
+
+        embed = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            description=f'**An administrator has successfully bypassed** {member.mention}**!**',
+            timestamp=ctx.message.created_at
+        )
+        embed.set_footer(text=f'Bypassed by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+        await ctx.send(embed=embed)
+
+
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     async def verify(self, ctx, member : discord.Member, id):
-        guild = ctx.guild
         channel = ctx.bot.get_channel(469863046408306699)
         answer = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
         api = answer.json()
@@ -31,13 +69,12 @@ class Commands(commands.Cog):
         with open('accounts.json', 'w') as f:
             json.dump(accounts, f, indent=4)
 
-        for role in guild.roles:
-            if role.name == 'IC player':
-                await member.add_roles(role)
+        player = discord.utils.get(ctx.guild.roles,name="IC player")
+        unverified = discord.utils.get(ctx.guild.roles,name="Unverified")
 
-        for role in guild.roles:
-            if role.name == 'Unverified':
-                await member.remove_roles(role)
+        await member.add_roles(player)
+
+        await member.remove_roles(unverified)
 
         embed = discord.Embed(
             colour=discord.Colour.from_rgb(66, 135, 245),

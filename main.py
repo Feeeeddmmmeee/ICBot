@@ -10,7 +10,7 @@ import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
-client = commands.Bot(command_prefix = 'ic ')
+client = commands.Bot(command_prefix = 'ic.')
 token = open("token.txt", "r")
 client.remove_command('help')
 
@@ -34,10 +34,51 @@ async def on_command_error(ctx, error):
         await ctx.send(':warning: Please wait before using this command again!')
     elif isinstance(error, commands.errors.CheckFailure):
         await ctx.send(':warning: Seems like you were banned from using this command!')
+    elif isinstance(error, commands.errors.CommandInvokeError):
+        await ctx.send(':warning: This user does not exist!')
     else:
         # All other Errors not returned come here. And we can just print the default TraceBack.
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
+@client.command(aliases=["id"])
+async def id_search(ctx, id):
+    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
+    api = response.json()
+    
+    if not(len(api)):
+        await ctx.send(":warning: We couldn't find any users with this name!")
+        return
+
+    else:
+
+        icname = api['name']
+        icfollowers = api['followers']
+        iclastlogin = api['lastLogin']
+        icmaps = api['maps']
+        icid = api['objectId']
+
+        embed = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            title=f"User info for `{id}`",
+            timestamp=ctx.message.created_at
+            )
+        embed.add_field(name='Stats', value=f'Nickname: {icname}\nID: {icid}\nFollowers: {icfollowers}\nLast login: {datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}\nAmount of maps: {icmaps}', inline=False)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+        await ctx.send(embed=embed)
+
+@client.command()
+async def botinfo(ctx):
+    embed=discord.Embed(
+        colour=discord.Colour.from_rgb(66, 135, 245),
+        description="Intersection Controller is a Discord bot which uses IC's API to connect to the game and give you some cool info!",
+        timestamp=ctx.message.created_at
+    )
+    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    embed.set_author(name="Intersection Controller#2844", icon_url="https://images-ext-1.discordapp.net/external/nip0KygSdkm20jZ2Hk4EbYhipIec7Y3NSn2qhI4Wdag/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/747892846178336868/f545eae8afba55f97f3924c4cadd3355.webp?width=676&height=676")
+    embed.add_field(name="Developer:", value="Feeeeddmmmeee#7784")
+    await ctx.send(embed=embed)    
 
 @client.command()
 async def search(ctx, *, name):
@@ -174,11 +215,14 @@ async def help(ctx):
     embed.add_field(name='Ban', value='Banned users can no longer use `ic suggest` (admin only)', inline=False)
     embed.add_field(name='Unban', value='Unbans a user (admin only)', inline=False)
     embed.add_field(name='Search', value='Searches for users', inline=False)
+    embed.add_field(name='Id', value='Gets a profile of a user with a given ID', inline=False)
     embed.add_field(name='Profile', value='Checks a profile of a user', inline=False)
     embed.add_field(name='Trending', value="Shows the map which is currenly first in the trending category! required arguments: `ic trending <sim>/<tc>/<misc>`", inline=False)
     embed.add_field(name='List', value="Shows a list of top 12 maps from the trending category! required arguments: `ic list <sim>/<tc>/<misc>`")
     embed.add_field(name='Suggest', value='Suggest a new feature to the Dev! it will be posted in <#600465489508171776>', inline=False)
     embed.add_field(name='Verify', value='Verify a new user! required arguments: `ic verify <@mention> <id>` (admin-only)', inline=False)
+    embed.add_field(name='Bypass', value='Bypasses a user. Bypassing is the same as verifying but it does not link accounts (admin only)', inline=False)
+    embed.add_field(name='Botinfo', value='Shows some info about the bot', inline=False)
     embed.add_field(name='Rules', value='Checks a specified server rule. reqired argments: `ic rules <number>`', inline=False)
     embed.add_field(name='Ping', value="Checks the client's latency", inline=False)
     embed.add_field(name='Cheats', value='Shows all the cheats', inline=False)
