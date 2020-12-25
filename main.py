@@ -10,7 +10,7 @@ import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
-client = commands.Bot(command_prefix = 'ic.')
+client = commands.Bot(command_prefix = 'ic ')
 token = open("token.txt", "r")
 client.remove_command('help')
 
@@ -222,6 +222,7 @@ async def help(ctx):
     embed.add_field(name='Suggest', value='Suggest a new feature to the Dev! it will be posted in <#600465489508171776>', inline=False)
     embed.add_field(name='Verify', value='Verify a new user! required arguments: `ic verify <@mention> <id>` (admin-only)', inline=False)
     embed.add_field(name='Bypass', value='Bypasses a user. Bypassing is the same as verifying but it does not link accounts (admin only)', inline=False)
+    embed.add_field(name="Outsider", value=' Its the same as verify but for outsiders which means that instead of the `IC player` role it will give the mentioned user the `outsider :(` role', inline=False)
     embed.add_field(name='Botinfo', value='Shows some info about the bot', inline=False)
     embed.add_field(name='Rules', value='Checks a specified server rule. reqired argments: `ic rules <number>`', inline=False)
     embed.add_field(name='Ping', value="Checks the client's latency", inline=False)
