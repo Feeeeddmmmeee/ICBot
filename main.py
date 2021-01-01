@@ -34,8 +34,6 @@ async def on_command_error(ctx, error):
         await ctx.send(':warning: Please wait before using this command again!')
     elif isinstance(error, commands.errors.CheckFailure):
         await ctx.send(':warning: Seems like you were banned from using this command!')
-    elif isinstance(error, commands.errors.CommandInvokeError):
-        await ctx.send(':warning: This user does not exist!')
     else:
         # All other Errors not returned come here. And we can just print the default TraceBack.
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
@@ -43,7 +41,8 @@ async def on_command_error(ctx, error):
 
 @client.command(aliases=["id"])
 async def id_search(ctx, id):
-    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
+    async with ctx.typing():
+        response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
     api = response.json()
     
     if not(len(api)):
@@ -82,7 +81,8 @@ async def botinfo(ctx):
 
 @client.command()
 async def search(ctx, *, name):
-    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
+    async with ctx.typing():
+        response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
     api = response.json()
     
     if not(len(api)):
@@ -97,16 +97,19 @@ async def search(ctx, *, name):
         timestamp=ctx.message.created_at
         )
         for item in api:
-            response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{item['objectId']}", verify = False)
+            async with ctx.typing():
+                response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{item['objectId']}", verify = False)
             api = response.json()
             embed.add_field(name=api['name'], value=f"Followers: {api['followers']} | ID: {api['objectId']}", inline=False)
                 
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-        await ctx.send(embed=embed)    
+        await ctx.send(embed=embed)
+
 
 @client.command()
 async def profile(ctx, *, name):
-    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
+    async with ctx.typing():
+        response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
     api = response.json()
     i = 0
 
@@ -117,7 +120,8 @@ async def profile(ctx, *, name):
     else:
         while(i<=len(api)):
             if api[i]['name'] == name:
-                response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{api[i]['objectId']}", verify = False)
+                async with ctx.typing():
+                    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{api[i]['objectId']}", verify = False)
                 api = response.json()
                 icname = api['name']
                 icfollowers = api['followers']
@@ -212,6 +216,7 @@ async def help(ctx):
     embed.add_field(name='Userinfo', value='Gets user info from a mention! required arguments: `ic userinfo <@mention>` (requires a linked account)', inline=False)
     embed.add_field(name='Link', value='Links a IC account to a Discord account (admin only)', inline=False)
     embed.add_field(name='Unlink', value='Unlinks a IC account from a Discord account (admin only)', inline=False)
+    embed.add_field(name='Rank', value='Shows your current rank and level (depending on in-game followers)', inline=False)
     embed.add_field(name='Ban', value='Banned users can no longer use `ic suggest` (admin only)', inline=False)
     embed.add_field(name='Unban', value='Unbans a user (admin only)', inline=False)
     embed.add_field(name='Search', value='Searches for users', inline=False)

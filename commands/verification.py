@@ -56,7 +56,8 @@ class Commands(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     async def verify(self, ctx, member : discord.Member, id):
         channel = ctx.bot.get_channel(469863046408306699)
-        answer = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
+        async with ctx.typing():
+            answer = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
         api = answer.json()
         icname = api['name']
 
@@ -141,7 +142,8 @@ class Commands(commands.Cog):
         if str(member.id) in accounts:
             icId = accounts[str(id)]
 
-            response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{icId}", verify = False)
+            async with ctx.typing():
+                response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{icId}", verify = False)
             api = response.json()
             icname = api['name']
             icfollowers = api['followers']
