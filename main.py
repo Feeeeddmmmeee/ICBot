@@ -7,6 +7,7 @@ import traceback
 import sys
 import asyncio
 import requests
+from itertools import cycle
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
@@ -38,6 +39,18 @@ async def on_command_error(ctx, error):
         # All other Errors not returned come here. And we can just print the default TraceBack.
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
+def sort():
+    with open('accounts.json', 'r') as f:
+        accounts = json.load(f)
+
+    sortedAccounts = sorted(accounts.items(), key=lambda k: requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{k[1]}", verify=False).json()["followers"], reverse=True)
+
+    #tuple to dict here
+    accounts = dict((x, y) for x, y in sortedAccounts)
+
+    with open('accounts.json', 'w') as f:
+        json.dump(accounts, f, indent=4)
 
 @client.command(aliases=["id"])
 async def id_search(ctx, id):

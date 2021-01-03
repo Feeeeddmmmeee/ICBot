@@ -8,6 +8,18 @@ import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
+def sort():
+    with open('accounts.json', 'r') as f:
+        accounts = json.load(f)
+
+    sortedAccounts = sorted(accounts.items(), key=lambda k: requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{k[1]}", verify=False).json()["followers"], reverse=True)
+
+    #tuple to dict here
+    accounts = dict((x, y) for x, y in sortedAccounts)
+
+    with open('accounts.json', 'w') as f:
+        json.dump(accounts, f, indent=4)
+
 class Commands(commands.Cog):
     
     def __init__(self, client):
@@ -61,7 +73,6 @@ class Commands(commands.Cog):
         api = answer.json()
         icname = api['name']
 
-
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
 
@@ -69,6 +80,8 @@ class Commands(commands.Cog):
 
         with open('accounts.json', 'w') as f:
             json.dump(accounts, f, indent=4)
+
+        sort()
 
         player = discord.utils.get(ctx.guild.roles,name="IC player")
         unverified = discord.utils.get(ctx.guild.roles,name="Unverified")
@@ -118,6 +131,8 @@ class Commands(commands.Cog):
             json.dump(accounts, f, indent=4)
         
         await ctx.send(f"Successfully linked an account to {member.mention}!")
+
+        sort()
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)

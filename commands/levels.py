@@ -8,6 +8,18 @@ import requests
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 
+def sort():
+    with open('accounts.json', 'r') as f:
+        accounts = json.load(f)
+
+    sortedAccounts = sorted(accounts.items(), key=lambda k: requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{k[1]}", verify=False).json()["followers"], reverse=True)
+
+    #tuple to dict here
+    accounts = dict((x, y) for x, y in sortedAccounts)
+
+    with open('accounts.json', 'w') as f:
+        json.dump(accounts, f, indent=4)
+
 class Commands(commands.Cog):
     
     def __init__(self, client):
@@ -96,15 +108,9 @@ class Commands(commands.Cog):
             with open('accounts.json', 'r') as f:
                 accounts = json.load(f)
 
-            i = 1
-
-            for user in accounts:
-                async with ctx.typing():
-                    response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{accounts[user]}", verify = False)
-                api = response.json()
-
-                if api["followers"] > followers:
-                    i=i+1
+            rank = 1
+                
+            rank = list(accounts).index(str(id)) + 1
 
             if member in ctx.guild.premium_subscribers:
                 boost = "true"
@@ -113,10 +119,12 @@ class Commands(commands.Cog):
                 boost = "false"
                 xpcolor = "3983c6"
 
-            await ctx.send(f"https://vacefron.nl/api/rankcard?username={member.name.replace(' ', '%20')}&avatar={avatar}&level={level}&rank={i}&currentxp={followers}&nextlevelxp={nextlevelxp}&previouslevelxp={previouslevelxp}&isboosting={boost}&xpcolor={xpcolor}")
+            await ctx.send(f"https://vacefron.nl/api/rankcard?username={member.name.replace(' ', '%20')}&avatar={avatar}&level={level}&rank={rank}&currentxp={followers}&nextlevelxp={nextlevelxp}&previouslevelxp={previouslevelxp}&isboosting={boost}&xpcolor={xpcolor}")
 
         else:
             await ctx.send(f":warning: Seems like {member.mention}'s account is not linked to his discord! If you'd like to link it please contact the administrators.")
+
+        sort()
 
 
 def setup(client):
