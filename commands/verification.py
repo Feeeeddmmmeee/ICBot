@@ -81,8 +81,6 @@ class Commands(commands.Cog):
         with open('accounts.json', 'w') as f:
             json.dump(accounts, f, indent=4)
 
-        sort()
-
         player = discord.utils.get(ctx.guild.roles,name="IC player")
         unverified = discord.utils.get(ctx.guild.roles,name="Unverified")
 
@@ -118,6 +116,8 @@ class Commands(commands.Cog):
         dm.add_field(name="But.. what does that mean?", value='We have linked your IC account to your discord and now people can run the `ic userinfo <mention>` command to view your profile!', inline=False)
         dm.set_footer(text=f'You were verified by: {ctx.author}', icon_url=ctx.author.avatar_url)
         await member.send(embed=dm)
+
+        sort()
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
