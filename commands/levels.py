@@ -27,6 +27,7 @@ class Commands(commands.Cog):
 
     @commands.command()
     async def rank(self, ctx, member : discord.Member = None):
+        cross = self.client.get_emoji(798573872916070470)
         member = ctx.author if not member else member
         id = member.id
         with open('accounts.json', 'r') as f:
@@ -122,10 +123,29 @@ class Commands(commands.Cog):
             await ctx.send(f"https://vacefron.nl/api/rankcard?username={member.name.replace(' ', '%20')}&avatar={avatar}&level={level}&rank={rank}&currentxp={followers}&nextlevelxp={nextlevelxp}&previouslevelxp={previouslevelxp}&isboosting={boost}&xpcolor={xpcolor}")
 
         else:
-            await ctx.send(f":warning: Seems like {member.mention}'s account is not linked to his discord! If you'd like to link it please contact the administrators.")
+            await ctx.send(f"{cross} Seems like {member.mention}'s account is not linked to his discord! If you'd like to link it please contact the administrators.")
 
         sort()
+'''
+    @commands.command(aliases=['dashboard','test'])
+    async def leaderboard(self, ctx):
+        with open('accounts.json', 'r') as f:
+            accounts = json.load(f)
 
+        embed = discord.Embed(
+            colour=discord.Colour.from_rgb(66, 135, 245),
+            title = "Top 5 users",
+            timestamp=ctx.message.created_at
+            )
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+        for i in range(0, 4):
+            embed.add_field(name=f"{i+1}.", value=list(accounts)[i], inline=False)
+            print(list(accounts)[i])
+            
+        await ctx.send(embed=embed)
+'''
+        
 
 def setup(client):
     client.add_cog(Commands(client))

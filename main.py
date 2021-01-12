@@ -10,14 +10,17 @@ import requests
 from itertools import cycle
 from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
+import ast
 
-client = commands.Bot(command_prefix = 'ic ')
+client = commands.Bot(command_prefix = 'ic ', intents = discord.Intents.all())
 token = open("token.txt", "r")
 client.remove_command('help')
+client.owner_id = 585115156757872653
 
 for filename in os.listdir('./commands'):
     if filename.endswith('.py'):
-        client.load_extension(f'commands.{filename[:-3]}')
+        if not filename.startswith('redditripoff'):
+            client.load_extension(f'commands.{filename[:-3]}')
 
 @client.event
 async def on_ready():
@@ -27,14 +30,17 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
+    cross = client.get_emoji(798573872916070470)
     if isinstance(error, commands.errors.MissingPermissions):
-        await ctx.send(":warning: You don't have enough permissions to run this command!")
+        await ctx.send(f"{cross} You don't have enough permissions to run this command!")
     elif isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send(':warning: Please pass in all required arguments!')
+        await ctx.send(f'{cross} Please pass in all required arguments!')
     elif isinstance(error, commands.errors.CommandOnCooldown):
-        await ctx.send(':warning: Please wait before using this command again!')
+        await ctx.send(f'{cross} Please wait before using this command again!')
+    elif isinstance(error, commands.errors.NotOwner):
+        await ctx.send(f'{cross} Only the bot owner can run this command!')
     elif isinstance(error, commands.errors.CheckFailure):
-        await ctx.send(':warning: Seems like you were banned from using this command!')
+        await ctx.send(f'{cross} Seems like you were banned from using this command!')
     else:
         # All other Errors not returned come here. And we can just print the default TraceBack.
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
@@ -52,14 +58,40 @@ def sort():
     with open('accounts.json', 'w') as f:
         json.dump(accounts, f, indent=4)
 
+@commands.is_owner()
+@client.command()
+async def validate(ctx, id=None):
+    tick = client.get_emoji(798573863184236574)
+    if id == None:
+        id = ctx.guild.id
+
+    with open("validIds.json", "r") as f:
+        validIds = json.load(f)
+
+    if id in validIds:
+        validIds.pop(validIds.index(int(id)))
+
+        with open('validIds.json', 'w') as f:
+            json.dump(validIds, f, indent=4)
+
+        await ctx.send(f"{tick} Successfully deleted a server with the given ID ({id}) from the valid server list.")
+    else:
+        validIds.append(int(id))
+
+        with open('validIds.json', 'w') as f:
+            json.dump(validIds, f, indent=4)
+
+        await ctx.send(f"{tick} Successfully validated a server with the given ID ({id}).")
+
 @client.command(aliases=["id"])
 async def id_search(ctx, id):
+    cross = client.get_emoji(798573872916070470)
     async with ctx.typing():
         response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
     api = response.json()
     
     if not(len(api)):
-        await ctx.send(":warning: We couldn't find any users with this name!")
+        await ctx.send(f"{cross} We couldn't find any users with this name!")
         return
 
     else:
@@ -94,12 +126,13 @@ async def botinfo(ctx):
 
 @client.command()
 async def search(ctx, *, name):
+    cross = client.get_emoji(798573872916070470)
     async with ctx.typing():
         response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
     api = response.json()
     
     if not(len(api)):
-        await ctx.send(":warning: We couldn't find any users with this name!")
+        await ctx.send(f"{cross} We couldn't find any users with this name!")
         return
 
     else:
@@ -121,13 +154,14 @@ async def search(ctx, *, name):
 
 @client.command()
 async def profile(ctx, *, name):
+    cross = client.get_emoji(798573872916070470)
     async with ctx.typing():
         response = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/search?query={name.replace(' ', '%20')}", verify = False)
     api = response.json()
     i = 0
 
     if not(len(api)):
-        await ctx.send(":warning: We couldn't find any users with this name!")
+        await ctx.send(f"{cross} We couldn't find any users with this name!")
         return
 
     else:
@@ -144,7 +178,7 @@ async def profile(ctx, *, name):
 
                 embed = discord.Embed(
                 colour=discord.Colour.from_rgb(66, 135, 245),
-                title=f"Profile of ``{icname}``",
+                title=f"Profile of `{icname}`",
                 timestamp=ctx.message.created_at
                 )
                 embed.add_field(name='Stats', value=f'Nickname: {icname}\nID: {icid}\nFollowers: {icfollowers}\nLast login: {datetime.datetime.fromtimestamp(round(iclastlogin/1000.0))}\nAmount of maps: {icmaps}', inline=False)
@@ -161,6 +195,7 @@ async def profile(ctx, *, name):
 
 @client.command()
 async def list(ctx, mode):
+    cross = client.get_emoji(798573872916070470)
     if mode.lower() == "tc":
         x = '2'
     elif mode.lower() == "sim":
@@ -168,7 +203,7 @@ async def list(ctx, mode):
     elif mode.lower() == "misc":
         x = '3'
     else:
-        await ctx.send(':warning: Please enter a valid mode!')
+        await ctx.send(f'{cross} Please enter a valid mode!')
         return
 
     async with ctx.typing():
@@ -189,6 +224,7 @@ async def list(ctx, mode):
 
 @client.command()
 async def trending(ctx, mode):
+    cross = client.get_emoji(798573872916070470)
     if mode.lower() == "tc":
         x = '2'
     elif mode.lower() == "sim":
@@ -196,7 +232,7 @@ async def trending(ctx, mode):
     elif mode.lower() == "misc":
         x = '3'
     else:
-        await ctx.send(':warning: Please enter a valid mode!')
+        await ctx.send(f'{cross} Please enter a valid mode!')
         return
 
     async with ctx.typing():
@@ -295,5 +331,73 @@ async def cheats(ctx):
     )
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
+
+def insert_returns(body):
+    # insert return stmt if the last expression is a expression statement
+    if isinstance(body[-1], ast.Expr):
+        body[-1] = ast.Return(body[-1].value)
+        ast.fix_missing_locations(body[-1])
+
+    # for if statements, we insert returns into the body and the orelse
+    if isinstance(body[-1], ast.If):
+        insert_returns(body[-1].body)
+        insert_returns(body[-1].orelse)
+
+    # for with blocks, again we insert returns into the body
+    if isinstance(body[-1], ast.With):
+        insert_returns(body[-1].body)
+
+@commands.is_owner()
+@client.command()
+async def ev(ctx, *, cmd):
+    """Evaluates input.
+    Input is interpreted as newline seperated statements.
+    If the last statement is an expression, that is the return value.
+    Usable globals:
+      - `bot`: the bot instance
+      - `discord`: the discord module
+      - `commands`: the discord.ext.commands module
+      - `ctx`: the invokation context
+      - `__import__`: the builtin `__import__` function
+    Such that `>eval 1 + 1` gives `2` as the result.
+    The following invokation will cause the bot to send the text '9'
+    to the channel of invokation and return '3' as the result of evaluating
+    >eval ```
+    a = 1 + 2
+    b = a * 2
+    await ctx.send(a + b)
+    a
+    ```
+    """
+    fn_name = "_eval_expr"
+
+    cmd = cmd.strip("` ")
+
+    # add a layer of indentation
+    cmd = "\n".join(f"    {i}" for i in cmd.splitlines())
+
+    # wrap in async def body
+    body = f"async def {fn_name}():\n{cmd}"
+
+    parsed = ast.parse(body)
+    body = parsed.body[0].body
+
+    insert_returns(body)
+
+    env = {
+        'bot': ctx.bot,
+        'discord': discord,
+        'commands': commands,
+        'ctx': ctx,
+        '__import__': __import__,
+        'json': json,
+        'requests': requests,
+        'client': client
+    }
+    exec(compile(parsed, filename="<ast>", mode="exec"), env)
+
+    result = (await eval(f"{fn_name}()", env))
+    await ctx.send(result)
+    print('Eval succeeded!')
 
 client.run(token.read())

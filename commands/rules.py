@@ -15,6 +15,7 @@ class Commands(commands.Cog):
 
     @commands.command(aliases = ["rule"])
     async def rules(self, ctx, number):
+        cross = self.client.get_emoji(798573872916070470)
         if number == '1':
             embed = discord.Embed(
                 colour=discord.Colour.from_rgb(66, 135, 245),
@@ -123,7 +124,8 @@ class Commands(commands.Cog):
                 title='18. Admins',
                 description='Admins also have to follow the server rules. They punish people only depending on the severity of the issue. Admins are always right in arguments about rules and punishments.'
             )
-        
+        else:
+            await ctx.send(f"{cross} Please enter a valid number!")
             
             
         await ctx.send(embed=embed)
