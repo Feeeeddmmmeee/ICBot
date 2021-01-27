@@ -26,10 +26,10 @@ class Commands(commands.Cog):
     @commands.check(isNotBanned)
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def suggest(self, ctx, *, suggestion):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+        with open("config.json", "r") as f:
+            config = json.load(f)
         cross = self.client.get_emoji(798573872916070470)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             embed = discord.Embed(
                 colour=discord.Colour.from_rgb(66, 135, 245),
                 timestamp=ctx.message.created_at,
@@ -61,12 +61,12 @@ class Commands(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
-    async def ban(self, ctx, member : discord.Member, *, reason = "REASON_NOT_SPECIFIED"):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+    async def ban(self, ctx, member : discord.Member, *, reason = "reason not specified"):
+        with open("config.json", "r") as f:
+            config = json.load(f)
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             with open('banned_users.json', 'r') as f:
                 banned = json.load(f)
             if str(member.id) in banned:
@@ -85,11 +85,11 @@ class Commands(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     async def unban(self, ctx, member : discord.Member):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+        with open("config.json", "r") as f:
+            config = json.load(f)
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             with open('banned_users.json', 'r') as f:
                 banned = json.load(f)
             if str(member.id) in banned:

@@ -125,7 +125,6 @@ class Commands(commands.Cog):
         else:
             await ctx.send(f"{cross} Seems like {member.mention}'s account is not linked to his discord! If you'd like to link it please contact the administrators.")
 
-        sort()
 '''
     @commands.command(aliases=['dashboard','test'])
     async def leaderboard(self, ctx):

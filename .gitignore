@@ -2,3 +2,5 @@ token.txt
 accounts.json
 banned_users.json
 karma.json
+competitions.json
+config.json

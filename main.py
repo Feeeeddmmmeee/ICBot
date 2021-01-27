@@ -12,7 +12,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions, MissingPermissions
 import ast
 
-client = commands.Bot(command_prefix = 'ic ', intents = discord.Intents.all())
+client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = discord.Intents.all())
 token = open("token.txt", "r")
 client.remove_command('help')
 client.owner_id = 585115156757872653
@@ -65,21 +65,21 @@ async def validate(ctx, id=None):
     if id == None:
         id = ctx.guild.id
 
-    with open("validIds.json", "r") as f:
-        validIds = json.load(f)
+    with open("config", "r") as f:
+        config = json.load(f)
 
-    if id in validIds:
-        validIds.pop(validIds.index(int(id)))
+    if int(id) in config["validIds"]:
+        config["validIds"].pop(config["validIds"].index(int(id)))
 
         with open('validIds.json', 'w') as f:
-            json.dump(validIds, f, indent=4)
+            json.dump(config["validIds"], f, indent=4)
 
         await ctx.send(f"{tick} Successfully deleted a server with the given ID ({id}) from the valid server list.")
     else:
-        validIds.append(int(id))
+        config["validIds"].append(int(id))
 
-        with open('validIds.json', 'w') as f:
-            json.dump(validIds, f, indent=4)
+        with open('config.json', 'w') as f:
+            json.dump(config["validIds"], f, indent=4)
 
         await ctx.send(f"{tick} Successfully validated a server with the given ID ({id}).")
 

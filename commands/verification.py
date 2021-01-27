@@ -28,10 +28,10 @@ class Commands(commands.Cog):
     @commands.command(aliases=['sendoutside'])
     @commands.has_permissions(manage_roles=True)
     async def outsider(self, ctx, member : discord.Member):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+        with open("config.json", "r") as f:
+            config = json.load(f)
         cross = self.client.get_emoji(798573872916070470)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             outsider = discord.utils.get(ctx.guild.roles,name='outsider :(')
             unverified = discord.utils.get(ctx.guild.roles,name="Unverified")
 
@@ -53,10 +53,10 @@ class Commands(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     async def bypass(self, ctx, member : discord.Member):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+        with open("config.json", "r") as f:
+            config = json.load(f)
         cross = self.client.get_emoji(798573872916070470)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             channel = ctx.bot.get_channel(469863046408306699)
             player = discord.utils.get(ctx.guild.roles,name="IC player")
             unverified = discord.utils.get(ctx.guild.roles,name="Unverified")
@@ -89,10 +89,10 @@ class Commands(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     async def verify(self, ctx, member : discord.Member, id):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+        with open("config.json", "r") as f:
+            config = json.load(f)
         cross = self.client.get_emoji(798573872916070470)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             channel = self.client.get_channel(469863046408306699)
             async with ctx.typing():
                 answer = requests.get(f"https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{id}", verify = False)
@@ -144,17 +144,18 @@ class Commands(commands.Cog):
             await member.send(embed=dm)
 
             sort()
+
         else:
             await ctx.send(f"{cross} This commands isn't available in your server!")
 
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     async def link(self, ctx, member : discord.Member, id):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+        with open("config.json", "r") as f:
+            config = json.load(f)
         tick = self.client.get_emoji(798573863184236574)
         cross = self.client.get_emoji(798573872916070470)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             with open('accounts.json', 'r') as f:
                 accounts = json.load(f)
 
@@ -172,11 +173,11 @@ class Commands(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     async def unlink(self, ctx, member : discord.Member):
-        with open("validIds.json", "r") as f:
-            validIds = json.load(f)
+        with open("config.json", "r") as f:
+            config = json.load(f)
         tick = self.client.get_emoji(798573863184236574)
         cross = self.client.get_emoji(798573872916070470)
-        if ctx.guild.id in validIds:
+        if ctx.guild.id in config["validIds"]:
             with open('accounts.json', 'r') as f:
                 accounts = json.load(f)
 
@@ -186,6 +187,7 @@ class Commands(commands.Cog):
                 json.dump(accounts, f, indent=4)
 
             await ctx.send(f"{tick} Successfully unlinked an account from {member.mention}!")
+            sort()
         else:
             await ctx.send(f"{cross} This commands isn't available in your server!")
 
