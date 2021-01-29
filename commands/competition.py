@@ -26,7 +26,7 @@ class Commands(commands.Cog):
     @commands.command()
     @commands.check(isNotBanned)
     async def host(self, ctx, *, description):
-        office = self.client.get_channel(597968800117162024)
+        queue = self.client.get_channel(790556584778530897)
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
         with open("config.json", "r") as f:
