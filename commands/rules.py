@@ -37,16 +37,19 @@ class Commands(commands.Cog):
         with open("config.json", "r") as f:
             config = json.load(f)
 
-        if number in config["rules"]:
-            config["rules"][number]["title"] = title
-            config["rules"][number]["desc"] = desc
+        if ctx.guild.id in config["validIds"]:
+            if number in config["rules"]:
+                config["rules"][number]["title"] = title
+                config["rules"][number]["desc"] = desc
 
-            with open('config.json', 'w') as f:
-                json.dump(config, f, indent=4)
+                with open('config.json', 'w') as f:
+                    json.dump(config, f, indent=4)
 
-            await ctx.send(f"{tick} Successfully edited the rule {number}!")
+                await ctx.send(f"{tick} Successfully edited the rule {number}!")
+            else:
+                await ctx.send(f"{cross} Please enter a valid number!")
         else:
-            await ctx.send(f"{cross} Please enter a valid number!")
+            await ctx.send(f"{cross} This commands isn't available in your server!")
 
 def setup(client):
     client.add_cog(Commands(client))

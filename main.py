@@ -65,21 +65,21 @@ async def validate(ctx, id=None):
     if id == None:
         id = ctx.guild.id
 
-    with open("config", "r") as f:
+    with open("config.json", "r") as f:
         config = json.load(f)
 
     if int(id) in config["validIds"]:
         config["validIds"].pop(config["validIds"].index(int(id)))
 
-        with open('validIds.json', 'w') as f:
-            json.dump(config["validIds"], f, indent=4)
+        with open('config.json', 'w') as f:
+            json.dump(config, f, indent=4)
 
         await ctx.send(f"{tick} Successfully deleted a server with the given ID ({id}) from the valid server list.")
     else:
         config["validIds"].append(int(id))
 
         with open('config.json', 'w') as f:
-            json.dump(config["validIds"], f, indent=4)
+            json.dump(config, f, indent=4)
 
         await ctx.send(f"{tick} Successfully validated a server with the given ID ({id}).")
 
@@ -281,9 +281,17 @@ async def help(ctx):
     embed.add_field(name='Rules', value='Checks a specified server rule. reqired argments: `ic rules <number>`', inline=False)
     embed.add_field(name='Ping', value="Checks the client's latency", inline=False)
     embed.add_field(name='Cheats', value='Shows all the cheats', inline=False)
+    embed.add_field(name='Host', value='Submits a competition', inline=False)
+    embed.add_field(name='Submit', value='Adds your submission for a competition', inline=False)
+    embed.add_field(name='Voting', value='Starts a voting for competition submissions', inline=False)
+    embed.add_field(name='End', value='Ends a competition, announces the winner', inline=False)
+    embed.add_field(name='Approve', value='Approves a submitted competition (admin only)', inline=False)
+    embed.add_field(name='Competition', value='Checks info on a competition', inline=False)
+    embed.add_field(name='Update', value='Updates one of the rules (admin only)', inline=False)
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
     await ctx.send(embed=embed)
+    
 
 @client.command()
 async def ping(ctx):
