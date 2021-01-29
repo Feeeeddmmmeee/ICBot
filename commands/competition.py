@@ -48,7 +48,7 @@ class Commands(commands.Cog):
                 )
             embed.set_footer(text=f"ID: {len(competitions)} • ic approve <id> to approve")
 
-            await office.send(embed=embed)
+            await queue.send(embed=embed)
 
             await ctx.send(f"{tick} Successfully submitted your competition (ID: {len(competitions)})!")
         else:
