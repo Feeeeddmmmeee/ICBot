@@ -18,7 +18,7 @@ class Commands(commands.Cog):
         cross = self.client.get_emoji(798573872916070470)
         with open("config.json", "r") as f:
             config = json.load(f)
-
+            
         if number in config["rules"]:
             embed = discord.Embed(
                 colour=discord.Colour.from_rgb(66, 135, 245),

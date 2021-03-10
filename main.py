@@ -91,7 +91,7 @@ async def id_search(ctx, id):
     api = response.json()
     
     if not(len(api)):
-        await ctx.send(f"{cross} We couldn't find any users with this name!")
+        await ctx.send(f"{cross} We couldn't find any users with this ID!")
         return
 
     else:
@@ -122,6 +122,7 @@ async def botinfo(ctx):
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     embed.set_author(name="Intersection Controller#2844", icon_url="https://images-ext-1.discordapp.net/external/nip0KygSdkm20jZ2Hk4EbYhipIec7Y3NSn2qhI4Wdag/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/747892846178336868/f545eae8afba55f97f3924c4cadd3355.webp?width=676&height=676")
     embed.add_field(name="Developer:", value="Feeeeddmmmeee#7784")
+    embed.add_field(name="Helper", value="rnggadosen._#8546")
     await ctx.send(embed=embed)    
 
 @client.command()
@@ -261,7 +262,6 @@ async def help(ctx):
         title=f'Need some help?',
         timestamp=ctx.message.created_at
     )
-    embed.add_field(name='Help', value='Shows this command', inline=False)
     embed.add_field(name='Userinfo', value='Gets user info from a mention! required arguments: `ic userinfo <@mention>` (requires a linked account)', inline=False)
     embed.add_field(name='Link', value='Links a IC account to a Discord account (admin only)', inline=False)
     embed.add_field(name='Unlink', value='Unlinks a IC account from a Discord account (admin only)', inline=False)
@@ -288,6 +288,8 @@ async def help(ctx):
     embed.add_field(name='Approve', value='Approves a submitted competition (admin only)', inline=False)
     embed.add_field(name='Competition', value='Checks info on a competition', inline=False)
     embed.add_field(name='Update', value='Updates one of the rules (admin only)', inline=False)
+    embed.add_field(name='Data', value="A more complicated command so I won't explain it here. Dm me if you want.", inline=False)
+    embed.add_field(name='Maps', value="A command used to get users' maps. Required arguments `ic maps <user id> <how far the map is from the first one>` (0 is the newest)", inline=False)
     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
     await ctx.send(embed=embed)
@@ -355,6 +357,12 @@ def insert_returns(body):
     if isinstance(body[-1], ast.With):
         insert_returns(body[-1].body)
 
+def readJson(name):
+    with open(name, "r") as f: return json.load(f)
+
+def writeJson(var, name):
+    with open(name, "w") as f: json.dump(var, f, indent=4)
+
 @commands.is_owner()
 @client.command()
 async def ev(ctx, *, cmd):
@@ -400,7 +408,9 @@ async def ev(ctx, *, cmd):
         '__import__': __import__,
         'json': json,
         'requests': requests,
-        'client': client
+        'client': client,
+        'readJson': readJson,
+        'writeJson': writeJson,
     }
     exec(compile(parsed, filename="<ast>", mode="exec"), env)
 

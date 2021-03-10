@@ -26,7 +26,7 @@ class Commands(commands.Cog):
     @commands.command()
     @commands.check(isNotBanned)
     async def host(self, ctx, *, description):
-        queue = self.client.get_channel(790556584778530897)
+        queue = self.client.get_channel(790556584778530897)#790556584778530897
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
         with open("config.json", "r") as f:
@@ -43,7 +43,7 @@ class Commands(commands.Cog):
 
             embed = discord.Embed(
                 colour=discord.Colour.from_rgb(66, 135, 245),
-                description=f"{ctx.author.mention} has submitted a competition! [[Message Link]](https://discord.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id})",
+                description=f"{ctx.author.mention} has submitted a competition!\n\nDescription: {description}\n\n[[Message Link]](https://discord.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id})",
                 timestamp=ctx.message.created_at
                 )
             embed.set_footer(text=f"ID: {len(competitions)} • ic approve <id> to approve")
@@ -88,6 +88,7 @@ class Commands(commands.Cog):
 
     @commands.command()
     async def voting(self, ctx, id):
+        cnl = self.client.get_channel(676771002021314591)
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
         with open("config.json", "r") as f:
@@ -109,7 +110,7 @@ class Commands(commands.Cog):
                                 embed.set_footer(text=f"Competition ID: {id}")
                                 embed.set_image(url=item['url'])
 
-                                msg = await ctx.send(embed=embed)
+                                msg = await cnl.send(embed=embed)
                                 await msg.add_reaction("✅")
                                 item["messageId"] = msg.id
 
@@ -130,7 +131,7 @@ class Commands(commands.Cog):
 
     @commands.command(aliases=['finish'])
     async def end(self, ctx, id):
-        announcement = self.client.get_channel(677491834670284801)
+        announcement = self.client.get_channel(677491834670284801)#677491834670284801
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
         with open("config.json", "r") as f:
@@ -200,7 +201,7 @@ class Commands(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_roles=True)
     async def approve(self, ctx, id):
-        announcement = self.client.get_channel(677491834670284801)
+        announcement = self.client.get_channel(677491834670284801)#677491834670284801
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
         with open("config.json", "r") as f:

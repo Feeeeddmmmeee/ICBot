@@ -125,8 +125,8 @@ class Commands(commands.Cog):
         else:
             await ctx.send(f"{cross} Seems like {member.mention}'s account is not linked to his discord! If you'd like to link it please contact the administrators.")
 
-'''
-    @commands.command(aliases=['dashboard','test'])
+
+    @commands.command()
     async def leaderboard(self, ctx):
         with open('accounts.json', 'r') as f:
             accounts = json.load(f)
@@ -138,12 +138,11 @@ class Commands(commands.Cog):
             )
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
-        for i in range(0, 4):
-            embed.add_field(name=f"{i+1}.", value=list(accounts)[i], inline=False)
-            print(list(accounts)[i])
+        for i in range(0, 5):
+            embed.add_field(name=f"{i+1}. {requests.get(f'https://tl3.shadowtree-software.se/TL3BackEnd/rest/user2/public/info/{accounts[list(accounts)[i]]}', verify=False).json()['name']}", value= self.client.get_user(int(list(accounts)[i])).mention, inline=False)
             
         await ctx.send(embed=embed)
-'''
+
         
 
 def setup(client):
