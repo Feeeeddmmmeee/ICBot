@@ -35,11 +35,11 @@ class Commands(commands.Cog):
             else:
                 end = "th"
 
-            if api[0]['gameModeGroup'] == 1:
+            if api[int(number)]['gameModeGroup'] == 1:
                 gamemode = "Simulation"
-            elif api[0]['gameModeGroup'] == 2:
+            elif api[int(number)]['gameModeGroup'] == 2:
                 gamemode = "Traffic Controller"
-            elif api[0]['gameModeGroup'] == 3:
+            elif api[int(number)]['gameModeGroup'] == 3:
                 gamemode = "Miscellaneous"
 
             embed = discord.Embed(
@@ -47,7 +47,7 @@ class Commands(commands.Cog):
                 title = f"`{id}`'s {str(int(number)+1)}{end} map:",
                 timestamp = ctx.message.created_at
             )
-            embed.add_field(name=api[0]['name'], value=f'Description: `{api[0]["desc"]}`\n\nGame Mode: {gamemode}\nAuthor Name: {api[0]["authorName"]}\nLikes: {api[0]["votesUp"]}\nDislikes: {api[0]["votesDown"]}\nFavorites: {api[0]["favorites"]}')
+            embed.add_field(name=api[int(number)]['name'], value=f'Description: `{api[int(number)]["desc"]}`\n\nGame Mode: {gamemode}\nAuthor Name: {api[int(number)]["authorName"]}\nLikes: {api[int(number)]["votesUp"]}\nDislikes: {api[int(number)]["votesDown"]}\nFavorites: {api[int(number)]["favorites"]}')
             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
             await ctx.send(embed=embed)
