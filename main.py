@@ -26,7 +26,7 @@ for filename in os.listdir('./commands'):
 async def on_ready():
     activity = discord.Activity(name="Intersection Controller", type=discord.ActivityType.playing)
     await client.change_presence(status=discord.Status.online, activity=activity)
-    print('Bot is ready')
+    print(f'Bot is ready. Logged in as {client.user}')
 
 @client.event
 async def on_command_error(ctx, error):

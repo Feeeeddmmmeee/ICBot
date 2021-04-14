@@ -88,7 +88,7 @@ class Commands(commands.Cog):
 
     @commands.command()
     async def voting(self, ctx, id):
-        cnl = self.client.get_channel(676771002021314591)
+        submissionChannel = self.client.get_channel(676771002021314591)
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
         with open("config.json", "r") as f:
@@ -110,13 +110,15 @@ class Commands(commands.Cog):
                                 embed.set_footer(text=f"Competition ID: {id}")
                                 embed.set_image(url=item['url'])
 
-                                msg = await cnl.send(embed=embed)
+                                msg = await submissionChannel.send(embed=embed)
                                 await msg.add_reaction("✅")
                                 item["messageId"] = msg.id
 
                             competitions[int(id)-1]["voting"] = True
                             with open('competitions.json','w') as f:
                                 json.dump(competitions, f, indent=4)
+
+                            await ctx.send(f"{tick} Successfully started the voting! ID: {id}")
 
                         else:
                             await ctx.send(f"{cross} Only the competition host can do this!")
@@ -132,6 +134,7 @@ class Commands(commands.Cog):
     @commands.command(aliases=['finish'])
     async def end(self, ctx, id):
         announcement = self.client.get_channel(677491834670284801)#677491834670284801
+        submissionChannel = self.client.get_channel(676771002021314591)
         cross = self.client.get_emoji(798573872916070470)
         tick = self.client.get_emoji(798573863184236574)
         with open("config.json", "r") as f:
@@ -150,7 +153,7 @@ class Commands(commands.Cog):
                             for submission in competitions[int(id)-1]["submissions"]:
 
                                 msgId = submission["messageId"]
-                                cache_msg = await ctx.channel.fetch_message(msgId)
+                                cache_msg = await submissionChannel.channel.fetch_message(msgId)
                                 #await ctx.send(cache_msg.reactions.emoji.count)
 
                                 reaction = cache_msg.reactions[0]
@@ -187,6 +190,8 @@ class Commands(commands.Cog):
 
                             with open('competitions.json','w') as f:
                                 json.dump(competitions, f, indent=4)
+
+                            await ctx.send(f"{tick} Successfully ended your competition! ID: {id}")
                         else:
                             await ctx.send(f"{cross} Only the competition host can do this!")
                     else:

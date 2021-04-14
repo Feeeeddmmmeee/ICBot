@@ -38,6 +38,10 @@ class Commands(commands.Cog):
             embed.set_footer(text=f"Suggested by {ctx.author}", icon_url=ctx.author.avatar_url)
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 
+            if len(ctx.message.attachments):
+                attachment = ctx.message.attachments[0]
+                embed.set_image(url = attachment.url)
+
             channel = ctx.bot.get_channel(600465489508171776)
             like = self.client.get_emoji(759059895424909380)
             dislike = self.client.get_emoji(759060520455766036)
