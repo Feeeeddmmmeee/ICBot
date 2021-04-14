@@ -67,7 +67,7 @@ class Commands(commands.Cog):
         
         if ctx.guild.id in config["validIds"]:
 
-            logs = ctx.guild.get_channel(ctx.channel.id)#630091908814864404
+            logs = ctx.guild.get_channel(630091908814864404)#630091908814864404
             with open("config.json", "r") as f:
                 config = json.load(f)
 
