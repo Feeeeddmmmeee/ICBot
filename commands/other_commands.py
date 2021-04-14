@@ -92,7 +92,7 @@ class Commands(commands.Cog):
             if "mute" in pType.lower():
                 embed.colour = discord.Colour.from_rgb(237, 69, 47)
 
-            await ctx.send(embed=embed)
+            await logs.send(embed=embed)
 
             case = case + 1
             config['case'] = case
