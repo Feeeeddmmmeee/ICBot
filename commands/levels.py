@@ -105,6 +105,23 @@ class Commands(commands.Cog):
                 nextlevelxp = 1500
                 previouslevelxp = 1250
                 level = 16
+            elif followers < 2000:
+                nextlevelxp = 2000
+                previouslevelxp = 1500
+                level = 17
+            elif followers < 3000:
+                nextlevelxp = 3000
+                previouslevelxp = 2000
+                level = 18
+            elif followers < 5000:
+                nextlevelxp = 4000
+                previouslevelxp = 3000
+                level - 19
+            else:
+                nextlevelxp = followers
+                previouslevelxp = 5000
+                level = 20
+                
 
             with open('accounts.json', 'r') as f:
                 accounts = json.load(f)
@@ -113,7 +130,7 @@ class Commands(commands.Cog):
                 
             rank = list(accounts).index(str(id)) + 1
 
-            if member in ctx.guild.premium_subscribers:
+            if discord.utils.find(lambda r: r.id == 638082632697118773, ctx.guild.roles) in member.roles:
                 boost = "true"
                 xpcolor = "de5bd9"
             else:
