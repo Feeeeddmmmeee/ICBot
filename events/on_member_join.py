@@ -1,0 +1,136 @@
+import discord, sqlite3, json, random, asyncio, intersection
+from discord.ext import commands
+
+class On_member_join(commands.Cog):
+
+    def __init__(self, client):
+        self.client = client
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        database = sqlite3.connect("database.sqlite")
+        cursor = database.cursor()
+
+        with open("config/validguilds.json", "r") as config:
+            validated  = member.guild.id in json.load(config)
+
+        if not validated:
+            return
+
+        logs = discord.utils.get(member.guild.channels, name="verification-logs")
+
+        logged = discord.Embed(
+            description = f"{member.mention} {member}",
+            timestamp = member.joined_at
+        )
+
+        chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M']
+        name = ""
+
+        for i in range(6):
+            name += random.choice(chars)
+
+        embed = discord.Embed(
+            title = ":link: Account Verification",
+            description = "I'm **Intersection Controller**, a Discord bot responsible for connecting people's Discord and IC accounts to allow them to view IC information on Discord. If you run into any problems please contact our administrator team in <#709891493737005157>\n\nIn order to see the rest of our server you will need to go through the verification process. In order to do so first send me your **Intersection Controller account ID** (It's visible on your profile page in the game)\n\n:warning: **Do not share any of my messages unless you're sure what you're doing!**\nAnyone with this information will be able to link your account.",
+            color = discord.Color.blue(),
+            timestamp = member.joined_at
+        )
+
+        embed.set_footer(text = member.name, icon_url = member.avatar_url)
+
+        await member.send(embed = embed)
+
+        def check(message):
+            return message.author == member and message.channel == member.dm_channel
+
+        try:
+            msg = await self.client.wait_for("message", timeout = 60.0, check = check)
+        
+        except asyncio.TimeoutError:
+            await member.send("You didn't respond in time so I have stopped the process. To restart verification type `ic verify`")
+            logged.set_author(name="Verification Timed Out", icon_url=member.avatar_url)
+            logged.color = discord.Color.red()
+
+            await logs.send(embed=logged)
+            return
+
+        try:
+            id = int(msg.content)
+
+        except:
+            await member.send("Invalid ID format!")
+            return
+
+        logged.set_author(name="Verification Started", icon_url=member.avatar_url)
+        logged.color = discord.Color.green()
+
+        logged.add_field(name="Presumed ID", value=id)
+        logged.add_field(name="Map Name", value=name)
+
+        await logs.send(embed=logged)
+
+        embed = discord.Embed(
+            title = ":link: Account Verification",
+            description = "Now, in order to be verified, you'll need to **upload a new map** with the name I'll send you in my next message (just copy and paste it).\n\nRemember that you need to upload the map on the account you have previously posted the ID of or otherwise I will be unable to verify you! If you don't do so within 5 minutes I will automatically stop the process. Make sure not to delete the map until I verify you!\n\n:warning: **Do not share any of my messages unless you're sure what you're doing!**\nAnyone with this information will be able to link your account.",
+            color = discord.Color.blue(),
+            timestamp = member.joined_at
+        )
+
+        embed.set_footer(text = member.name, icon_url = member.avatar_url)
+
+        await member.send(embed=embed)
+        await member.send(name)
+
+
+        for i in range(15):
+            await asyncio.sleep(20)
+            map = intersection.map.list_maps_by_user(userId = id, result = 1)[0]
+
+            if map.name == name: break
+        
+        if map.name == name:
+            embed = discord.Embed(
+                title = ":link: Account Verification",
+                description = "You have been successfully verified. Now, go visit our server and try out a bunch of awesome commands! You can type `ic profile @member` to view their IC user information or just run `ic profile` to view yours.\n\nIf you want to delete the map you can do it now.\n\nThe verification map name I sent you isn't going to be used again so you can freely post it wherever you want now.",
+                color = discord.Color.blue(),
+                timestamp = member.joined_at
+            )
+
+            embed.set_footer(text = member.name, icon_url = member.avatar_url)
+
+            player = discord.utils.get(member.guild.roles,name="IC player")
+            unverified = discord.utils.get(member.guild.roles,name="Unverified")
+
+            cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+            cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {member.id}")
+            data = cursor.fetchone()
+                
+            if not data:
+                cursor.execute(f"INSERT INTO accounts(discord_id, ic_id) VALUES({member.id}, {id})")
+            else:
+                cursor.execute(f"UPDATE accounts SET ic_id = {id} WHERE discord_id = {member.id}")
+
+            await member.add_roles(player)
+            await member.remove_roles(unverified)
+
+            await member.send(embed = embed)
+
+            logged.set_author(name="Verification Succeeded", icon_url=member.avatar_url)
+            logged.color = discord.Color.green()
+
+            await logs.send(embed=logged)
+
+        else:
+            logged.set_author(name="Verification Failed", icon_url=member.avatar_url)
+            logged.color = discord.Color.red()
+
+            await logs.send(embed=logged)
+            await member.send(f"Your latest map's name ({map.name}) doesn't match the verification name ({name})! I have stopped the verification process. Type `ic verify` if you wish to restart.")
+
+        database.commit()
+        cursor.close()
+        database.close()
+
+def setup(client):
+    client.add_cog(On_member_join(client))
