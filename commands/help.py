@@ -10,7 +10,7 @@ class Help(commands.Cog):
     async def help(self, ctx):
         embed = discord.Embed(
             title = "Available Commands",
-            description = "No, you can't get detailed help information on each\n command because I was to lazy to make that so don't \nattempt to run `ic help command`.",
+            description = "No, you can't get detailed help information on each command because I was to lazy to make that so don't attempt to run `ic help command`.",
             color = discord.Color.blue()
         )
 

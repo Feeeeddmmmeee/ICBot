@@ -37,12 +37,13 @@ class Verify(commands.Cog):
 
         embed = discord.Embed(
             title = ":link: Account Verification",
-            description = "I'm **Intersection Controller**, a Discord bot responsible for connecting people's Discord and IC accounts to allow them to view IC information on Discord. If you run into any problems please contact our administrator team in <#709891493737005157>\n\nIn order to see the rest of our server you will need to go through the verification process. In order to do so first send me your **Intersection Controller account ID** (It's visible on your profile page in the game)\n\n:warning: **Do not share any of my messages unless you're sure what you're doing!**\nAnyone with this information will be able to link your account.",
+            description = "I'm **Intersection Controller**, a Discord bot responsible for connecting people's Discord and IC accounts to allow them to view IC information on Discord. If you run into any problems please contact our administrator team in <#709891493737005157>. The #numbers under your profile is your ID (without the hashtag)\n\nIn order to see the rest of our server you will need to go through the verification process. To do so first send me your **Intersection Controller account ID** (It's visible on your profile page in the game)\n\n:warning: **Do not share any of my messages unless you're sure what you're doing!**\nAnyone with this information will be able to link your account.",
             color = discord.Color.blue(),
             timestamp = ctx.message.created_at
         )
 
         embed.set_footer(text = member.name, icon_url = member.avatar_url)
+        embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/905104265683533824/IMG_20211102_154055.jpg")
 
         await member.send(embed = embed)
 

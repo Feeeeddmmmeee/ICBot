@@ -16,6 +16,8 @@ class Map(commands.Cog):
         if not where: discord_id = ctx.author.id
         elif where.startswith("<@"):
             discord_id = int(where[:-1][3:])
+        elif len(where) > 10:
+            discord_id = int(where)
 
         else:
             ic_id = int(where)
