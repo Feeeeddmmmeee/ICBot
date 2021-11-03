@@ -17,15 +17,20 @@ class On_command_error(commands.Cog):
             if mins.startswith("0"): mins.replace("0", "")
             mins = int(mins) + 1
 
-            await ctx.reply(f"Please wait {mins} more minutes before running this command again!", mention_author=False)
+            embed = discord.Embed(
+                description = f"<:neutral:905485648478228490> Please wait **{mins}** more minutes before running this command again!",
+                color = discord.Color.blue()
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
 
         elif isinstance(error, commands.errors.CommandNotFound):
             pass
 
         else:
             embed = discord.Embed(
-                color = discord.Color.from_rgb(255, 13, 0),
-                title = ":x: Command raised an exception!",
+                color = discord.Color.from_rgb(237, 50, 31),
+                title = "<:error:905485648373370890> Command raised an exception!",
                 timestamp = ctx.message.created_at,
                 description = f"```{error}```"
             )

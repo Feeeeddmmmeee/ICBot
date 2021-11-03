@@ -13,7 +13,12 @@ class Suggest(commands.Cog):
             validated  = ctx.guild.id in json.load(config)
 
         if not validated:
-            ctx.reply(f"This commands isn't available in your server!", mention_author = False)
+            embed = discord.Embed(
+                description = f"<:neutral:905485648478228490> This command isn't available in your server!",
+                color = discord.Color.blue()
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
             return
 
         embed = discord.Embed(

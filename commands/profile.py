@@ -6,7 +6,7 @@ class Profile(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(aliases = ['userinfo', 'info', 'user', 'ui', 'whois'])
+    @commands.command(aliases = ['userinfo', 'discord', 'user', 'ui', 'whois'])
     async def profile(self, ctx, user: discord.User = None):
         if not user: user = ctx.author
         await ctx.trigger_typing()
@@ -19,7 +19,12 @@ class Profile(commands.Cog):
         id = cursor.fetchone()
 
         if not id:
-            await ctx.reply("This user's account is not linked!", mention_author = False)
+            embed = discord.Embed(
+                description = f"<:error:905485648373370890> This user's account isn't linked!",
+                color = discord.Color.from_rgb(237, 50, 31)
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
             return
 
         account = intersection.user.get_details_for_user(userId = id[0])

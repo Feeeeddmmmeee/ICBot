@@ -1,4 +1,4 @@
-import discord
+import discord, json
 from discord.ext import commands
 
 class Help(commands.Cog):
@@ -9,6 +9,18 @@ class Help(commands.Cog):
     @commands.command()
     @commands.has_guild_permissions(manage_roles = True)
     async def bypass(self, ctx, member: discord.Member):
+        with open("config/validguilds.json", "r") as config:
+            validated  = ctx.guild.id in json.load(config)
+
+        if not validated:
+            embed = discord.Embed(
+                description = f"<:neutral:905485648478228490> This command isn't available in your server!",
+                color = discord.Color.blue()
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
+            return
+
         player = discord.utils.get(member.guild.roles,name="IC player")
         unverified = discord.utils.get(member.guild.roles,name="Unverified")
 

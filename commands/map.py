@@ -135,6 +135,49 @@ class Map(commands.Cog):
 
         await ctx.reply(embed = embed, mention_author = False)
 
+    @map.command()
+    async def search(self, ctx, gamemode, *, query):
+        database = sqlite3.connect("database.sqlite")
+        cursor = database.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+
+        if gamemode.lower() in ['sim', 'simulation', '1']: gamemode = 1
+        elif gamemode.lower() in ['tc', 'trafficcontroller', '2']: gamemode = 2
+
+        maps = intersection.map.search_for_maps(gameMode=gamemode, result=10, query=query)
+
+        if not len(maps):
+            embed = discord.Embed(
+                description = f"<:error:905485648373370890> No maps with such a name found!",
+                color = discord.Color.from_rgb(237, 50, 31)
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
+            return
+
+        embed = discord.Embed(
+            title = f"Searching for `{query}`:",
+            timestamp = ctx.message.created_at,
+            color = discord.Color.blue()
+        )
+
+        for map in maps:
+            linked = "Not linked"
+            
+            cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {map.author}')
+            account = cursor.fetchone()
+
+            if account:
+                linked = self.client.get_user(account[0])
+
+            embed.add_field(name=f"{map.name} <:IC_like:759059895424909380> {map.votesUp} <:IC_dislike:759060520455766036> {map.votesDown} :white_heart: {map.favorites}", value=f"**Author:** {map.authorName} | **Discord:** {linked}", inline=False)
+
+        embed.set_footer(text = ctx.author.name, icon_url = ctx.author.avatar_url)
+
+        cursor.close()
+        database.close()
+
+        await ctx.reply(embed=embed, mention_author=False)
 
 def setup(client):
     client.add_cog(Map(client))

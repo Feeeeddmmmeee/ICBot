@@ -8,8 +8,6 @@ class Search(commands.Cog):
 
     @commands.command()
     async def search(self, ctx, *, name):
-        await ctx.trigger_typing()
-
         database = sqlite3.connect("database.sqlite")
         cursor = database.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
@@ -17,7 +15,12 @@ class Search(commands.Cog):
         users = intersection.user.search_for_users(result = 10, query = name)
 
         if not len(users):
-            await ctx.reply("No users with such a name found!", mention_author = False)
+            embed = discord.Embed(
+                description = f"<:error:905485648373370890> No users with such a name found!",
+                color = discord.Color.from_rgb(237, 50, 31)
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
             return
 
         embed = discord.Embed(
@@ -43,7 +46,6 @@ class Search(commands.Cog):
         database.close()
 
         await ctx.reply(embed=embed, mention_author = False)
-
 
 def setup(client):
     client.add_cog(Search(client))

@@ -18,6 +18,11 @@ client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = i
 client.remove_command('help')
 client.owner_id = 585115156757872653
 
+@client.before_invoke
+async def typing(ctx):
+    if not ctx.command.name in ['verify']:
+        await ctx.trigger_typing()
+
 @client.event
 async def on_ready():
     print(f">> Logged in as {client.user}")

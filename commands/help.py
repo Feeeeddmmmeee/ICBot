@@ -9,13 +9,13 @@ class Help(commands.Cog):
     @commands.command()
     async def help(self, ctx):
         embed = discord.Embed(
-            title = "Available Commands",
+            title = "<:neutral:905485648478228490> Available Commands",
             description = "No, you can't get detailed help information on each command because I was to lazy to make that so don't attempt to run `ic help command`.",
             color = discord.Color.blue()
         )
 
         embed.add_field(name="Admin / Developer", value="`ic link` `ic unlink` `ic debug` `ic bypass`", inline=False)
-        embed.add_field(name="Profiles and Stuff", value="`ic profile` `ic verify` `ic map` `ic search`", inline=False)
+        embed.add_field(name="Profiles and Stuff", value="`ic profile` `ic verify` `ic map` `ic search` `getfrom`", inline=False)
         embed.add_field(name="Other", value="`ic cheats` `ic rules` `ic suggest` `ic help` `ic ping`", inline=False)
 
 

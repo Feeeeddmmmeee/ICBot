@@ -9,8 +9,6 @@ class Unlink(commands.Cog):
     @commands.command()
     @commands.has_guild_permissions(manage_roles=True)
     async def unlink(self, ctx, user : discord.User):
-        await ctx.trigger_typing()
-        
         database = sqlite3.connect("database.sqlite")
         cursor = database.cursor()
 
@@ -18,7 +16,12 @@ class Unlink(commands.Cog):
             validated  = ctx.guild.id in json.load(config)
 
         if not validated:
-            await ctx.reply(f"This commands isn't available in your server!", mention_author = False)
+            embed = discord.Embed(
+                description = f"<:neutral:905485648478228490> This command isn't available in your server!",
+                color = discord.Color.blue()
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
             return
 
         cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
