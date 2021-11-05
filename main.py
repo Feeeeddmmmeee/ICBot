@@ -8,9 +8,7 @@ discord.member = True
 discord.guild = True
 discord.reaction = True
 
-dotenv_path = Path(__file__.replace("main.py", "/config/token.env"))
-
-load_dotenv(dotenv_path = dotenv_path)
+load_dotenv(dotenv_path = "./config/token.env")
 TOKEN = os.getenv('TOKEN')
 
 client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = intents, allowed_mentions=discord.AllowedMentions(everyone=False))
@@ -20,7 +18,7 @@ client.owner_id = 585115156757872653
 
 @client.before_invoke
 async def typing(ctx):
-    if not ctx.command.name in ['verify']:
+    if not ctx.command.name in ['verify', 'suggest']:
         await ctx.trigger_typing()
 
 @client.event
