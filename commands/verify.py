@@ -7,28 +7,33 @@ class Verify(commands.Cog):
         self.client = client
 
     @commands.command()
-    async def verify(self, ctx, member: discord.Member = None):
-        with open("config/validguilds.json", "r") as config:
-            validated  = ctx.guild.id in json.load(config)
-
-        if not validated:
-            embed = discord.Embed(
-                description = f"<:neutral:905485648478228490> This command isn't available in your server!",
-                color = discord.Color.blue()
-            )
-
-            await ctx.reply(embed=embed, mention_author=False)
-            return
-
+    async def verify(self, ctx, member: discord.User = None):
         if not member: member = ctx.author
         elif not ctx.author.guild_permissions.manage_messages and not member == ctx.author: raise commands.errors.MissingPermissions(["manage_roles"])
 
+        if ctx.channel != member.dm_channel:
+
+            with open("config/validguilds.json", "r") as config:
+                validated  = ctx.guild.id in json.load(config)
+
+            if not validated:
+                embed = discord.Embed(
+                    description = f"<:neutral:905485648478228490> This command isn't available in your server!",
+                    color = discord.Color.blue()
+                )
+
+                await ctx.reply(embed=embed, mention_author=False)
+                return
+
         await ctx.message.add_reaction('📬')
+
+        guild = self.client.get_guild(469861886960205824)
+        member = guild.get_member(member.id)
 
         database = sqlite3.connect("database.sqlite")
         cursor = database.cursor()
 
-        logs = discord.utils.get(member.guild.channels, name="verification-logs")
+        logs = discord.utils.get(guild.channels, name="verification-logs")
 
         logged = discord.Embed(
             description = f"{member.mention} {member}",
@@ -110,8 +115,8 @@ class Verify(commands.Cog):
 
             embed.set_footer(text = member.name, icon_url = member.avatar_url)
 
-            player = discord.utils.get(member.guild.roles,name="IC player")
-            unverified = discord.utils.get(member.guild.roles,name="Unverified")
+            player = discord.utils.get(guild.roles,name="IC player")
+            unverified = discord.utils.get(guild.roles,name="Unverified")
 
             cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
             cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {member.id}")
