@@ -62,7 +62,7 @@ class Verify(commands.Cog):
             return message.author == member and message.channel == member.dm_channel
 
         try:
-            msg = await self.client.wait_for("message", timeout = 60.0, check = check)
+            msg = await self.client.wait_for("message", timeout = 5 * 60.0, check = check)
         
         except asyncio.TimeoutError:
             await member.send("You didn't respond in time so I have stopped the process. To restart verification type `ic verify`")
