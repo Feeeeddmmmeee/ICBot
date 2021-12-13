@@ -15,7 +15,7 @@ client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = i
 
 client.remove_command('help')
 client.owner_id = 585115156757872653
-guild_id = 744653826799435806 #469861886960205824
+guild_id = 469861886960205824 #744653826799435806
 
 @client.before_invoke
 async def typing(ctx):
