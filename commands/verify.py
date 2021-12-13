@@ -53,7 +53,7 @@ class Verify(commands.Cog):
         )
 
         embed.set_footer(text = member.name, icon_url = member.avatar_url)
-        embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/905104265683533824/IMG_20211102_154055.jpg")
+        embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/919997649439055882/Untitled.png")
 
         await member.send(embed = embed)
 
@@ -100,9 +100,12 @@ class Verify(commands.Cog):
 
         for i in range(15):
             await asyncio.sleep(20)
-            map = intersection.map.list_maps_by_user(userId = id, result = 1)[0]
+            try:
+                map = intersection.map.list_maps_by_user(userId = id, result = 1)[0]
 
-            if map.name == name: break
+                if map.name == name: break
+            except:
+                pass
         
         if(map.name == name):
             embed = discord.Embed(
@@ -115,7 +118,6 @@ class Verify(commands.Cog):
             embed.set_footer(text = member.name, icon_url = member.avatar_url)
 
             player = discord.utils.get(guild.roles,name="IC player")
-            unverified = discord.utils.get(guild.roles,name="Unverified")
 
             async with asqlite.connect("database.sqlite") as conn:
                 async with conn.cursor() as cursor:
@@ -131,8 +133,7 @@ class Verify(commands.Cog):
 
                     await conn.commit()
 
-            await member.add_roles(player)
-            await member.remove_roles(unverified)
+            await member.add_roles(player, reason = f"an IC account was linked to the user. ID: {id}")
 
             await member.send(embed = embed)
 

@@ -35,7 +35,7 @@ class On_member_join(commands.Cog):
             logged.add_field(name="ID", value=data[0])
 
             await logs.send(embed=logged)
-            await member.add_roles(player)
+            await member.add_roles(player, reason=f"Auto-Bypassed by the bot, account already linked to {data[0]}")
             
             return
 
@@ -53,7 +53,7 @@ class On_member_join(commands.Cog):
         )
 
         embed.set_footer(text = member.name, icon_url = member.avatar_url)
-        embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/905104265683533824/IMG_20211102_154055.jpg")
+        embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/919997649439055882/Untitled.png")
 
         await member.send(embed = embed)
 
@@ -101,9 +101,12 @@ class On_member_join(commands.Cog):
 
         for i in range(15):
             await asyncio.sleep(20)
-            map = intersection.map.list_maps_by_user(userId = id, result = 1)[0]
+            try:
+                map = intersection.map.list_maps_by_user(userId = id, result = 1)[0]
 
-            if map.name == name: break
+                if map.name == name: break
+            except:
+                pass
         
         if map.name == name:
             embed = discord.Embed(
@@ -128,7 +131,7 @@ class On_member_join(commands.Cog):
 
                     await conn.commit()
 
-            await member.add_roles(player)
+            await member.add_roles(player, reason=f"an IC account was linked to the user. ID: {id}")
 
             await member.send(embed = embed)
 

@@ -15,7 +15,7 @@ client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = i
 
 client.remove_command('help')
 client.owner_id = 585115156757872653
-guild_id = 469861886960205824 #744653826799435806
+guild_id = 469861886960205824 # test = 744653826799435806 # ic = 469861886960205824
 
 @client.before_invoke
 async def typing(ctx):
@@ -197,12 +197,12 @@ async def update_follower_roles(member: discord.Member, guild: discord.Guild):
         ic_user_object = intersection.user.get_details_for_user(userId=id[0])
         followers = ic_user_object.followers
 
-        await member.add_roles(*roles(member, followers, guild)[0])
-        await member.remove_roles(*roles(member, followers, guild)[1])
+        await member.add_roles(*roles(member, followers, guild)[0], reason = "Updating follower roles.")
+        await member.remove_roles(*roles(member, followers, guild)[1], reason = "Updating follower roles.")
         
     else: 
-        await member.add_roles(*roles(member, None, guild)[0])
-        await member.remove_roles(*roles(member, None, guild)[1])
+        await member.add_roles(*roles(member, None, guild)[0], reason = "Updating follower roles.")
+        await member.remove_roles(*roles(member, None, guild)[1], reason = "Updating follower roles.")
 
 @tasks.loop(seconds=60)
 async def follower_roles():
