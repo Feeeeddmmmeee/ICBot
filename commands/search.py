@@ -1,5 +1,6 @@
-import discord, intersection, sqlite3
+import discord, intersection
 from discord.ext import commands
+from libs import asqlite
 
 class Search(commands.Cog):
 
@@ -8,10 +9,6 @@ class Search(commands.Cog):
 
     @commands.command()
     async def search(self, ctx, *, name):
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
-
         users = intersection.user.search_for_users(result = 10, query = name)
 
         if not len(users):
@@ -32,8 +29,10 @@ class Search(commands.Cog):
         for user in users:
             linked = "Not linked"
             
-            cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {user.objectId}')
-            account = cursor.fetchone()
+            async with asqlite.connect("database.sqlite") as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {user.objectId}')
+                    account = await cursor.fetchone()
 
             if account:
                 linked = self.client.get_user(account[0])
@@ -42,8 +41,6 @@ class Search(commands.Cog):
 
         embed.set_footer(text = ctx.author.name, icon_url = ctx.author.avatar_url)
 
-        cursor.close()
-        database.close()
 
         await ctx.reply(embed=embed, mention_author = False)
 

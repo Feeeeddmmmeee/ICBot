@@ -1,5 +1,6 @@
-import discord, intersection, sqlite3, json
+import discord, intersection, json
 from discord.ext import commands
+from libs import asqlite
 
 class Link(commands.Cog):
 
@@ -9,8 +10,6 @@ class Link(commands.Cog):
     @commands.command()
     @commands.has_guild_permissions(manage_roles = True)
     async def link(self, ctx, user : discord.User, object_id):
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
 
         with open("config/validguilds.json", "r") as config:
             validated  = ctx.guild.id in json.load(config)
@@ -26,14 +25,18 @@ class Link(commands.Cog):
 
         ic_user = intersection.user.get_details_for_user(userId = object_id)
 
-        cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
-        cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {user.id}")
-        data = cursor.fetchone()
+        async with asqlite.connect("database.sqlite") as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+                await cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {user.id}")
+                data = await cursor.fetchone()
             
-        if not data:
-            cursor.execute(f"INSERT INTO accounts(discord_id, ic_id) VALUES({user.id}, {ic_user.objectId})")
-        else:
-            cursor.execute(f"UPDATE accounts SET ic_id = {ic_user.objectId} WHERE discord_id = {user.id}")
+                if not data:
+                    await cursor.execute(f"INSERT INTO accounts(discord_id, ic_id) VALUES({user.id}, {ic_user.objectId})")
+                else:
+                    await cursor.execute(f"UPDATE accounts SET ic_id = {ic_user.objectId} WHERE discord_id = {user.id}")
+
+                await conn.commit()
 
         await ctx.reply(f"Successfully linked an account to {user.mention}!", mention_author = False, allowed_mentions = discord.AllowedMentions.none())   
 
@@ -51,9 +54,13 @@ class Link(commands.Cog):
 
         await logs.send(embed = logged)       
 
-        database.commit()
-        cursor.close()
-        database.close()
+        async with asqlite.connect("database.sqlite") as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(f'SELECT * FROM accounts')
+                amount_of_users = await cursor.fetchall()
+
+        activity = discord.Activity(name=f"{len(amount_of_users)} Linked Accounts", type=discord.ActivityType.watching)
+        await self.client.change_presence(status=discord.Status.online, activity=activity)
 
 def setup(client):
     client.add_cog(Link(client))

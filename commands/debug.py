@@ -1,16 +1,14 @@
-import discord, ast, sqlite3
+import discord, ast, asyncio
 from discord.ext import commands
+from libs import asqlite
 
-def database(select, _from, where, equals):
-    database = sqlite3.connect("database.sqlite")
-    cursor = database.cursor()
+async def database(what):
+    async with asqlite.connect("database.sqlite") as conn:
+        async with conn.cursor() as cursor:
 
-    cursor.execute(f'SELECT {select} FROM {_from} WHERE {where} = {equals}')
+            await cursor.execute(what)
 
-    toreturn = cursor.fetchone()
-
-    cursor.close()
-    database.close()
+            toreturn = await cursor.fetchall()
 
     return toreturn
 
@@ -60,7 +58,8 @@ class Debug(commands.Cog):
             'ctx': ctx,
             '__import__': __import__,
             'self': self,
-            'database': database
+            'database': database,
+            'asyncio': asyncio
         }
         exec(compile(parsed, filename="<ast>", mode="exec"), env)
 

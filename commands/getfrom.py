@@ -1,5 +1,6 @@
-import discord, intersection, sqlite3, datetime
+import discord, intersection, datetime
 from discord.ext import commands
+from libs import asqlite
 
 class Getfrom(commands.Cog):
 
@@ -35,12 +36,12 @@ class Getfrom(commands.Cog):
 
         account = intersection.user.get_details_for_user(userId=account.objectId)
 
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+        async with asqlite.connect("database.sqlite") as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
 
-        cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {account.objectId}')
-        id = cursor.fetchone()
+                await cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {account.objectId}')
+                id = await cursor.fetchone()
 
         embed = discord.Embed(
             timestamp = ctx.message.created_at,
@@ -54,11 +55,8 @@ class Getfrom(commands.Cog):
             else: 
                 embed.title = f"Searching for `{name}`:"
 
-        embed.add_field(name = "Intersection Controller", value = f"**Nickname:** {account.name}\n**ID:** {account.objectId}\n**Followers:** {account.followers}\n**Last login:** {datetime.datetime.fromtimestamp(round(account.lastLogin / 1000.0))}\n**Maps:** {account.maps}")
+        embed.add_field(name = "Intersection Controller", value = f"**Nickname:** {account.name}\n**ID:** {account.objectId}\n**Followers:** {account.followers}\n**Last login:** <t:{round(account.lastLogin / 1000.0)}:R>\n**Maps:** {account.maps}")
         embed.set_footer(text = ctx.author.name, icon_url = ctx.author.avatar_url)
-
-        cursor.close()
-        database.close()
 
         await ctx.reply(embed = embed, mention_author = False)
 
@@ -67,12 +65,12 @@ class Getfrom(commands.Cog):
         account = intersection.user.get_details_for_user(userId=int(id))
         userid = id
 
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+        async with asqlite.connect("database.sqlite") as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
 
-        cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {int(id)}')
-        id = cursor.fetchone()
+                await cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {int(id)}')
+                id = await cursor.fetchone()
 
         embed = discord.Embed(
             timestamp = ctx.message.created_at,
@@ -86,11 +84,8 @@ class Getfrom(commands.Cog):
             else: 
                 embed.title = f"Searching for `{userid}`:"
 
-        embed.add_field(name = "Intersection Controller", value = f"**Nickname:** {account.name}\n**ID:** {account.objectId}\n**Followers:** {account.followers}\n**Last login:** {datetime.datetime.fromtimestamp(round(account.lastLogin / 1000.0))}\n**Maps:** {account.maps}")
+        embed.add_field(name = "Intersection Controller", value = f"**Nickname:** {account.name}\n**ID:** {account.objectId}\n**Followers:** {account.followers}\n**Last login:** <t:{round(account.lastLogin / 1000.0)}:R>\n**Maps:** {account.maps}")
         embed.set_footer(text = ctx.author.name, icon_url = ctx.author.avatar_url)
-
-        cursor.close()
-        database.close()
 
         await ctx.reply(embed = embed, mention_author = False)
 

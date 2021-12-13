@@ -1,5 +1,6 @@
-import discord, sqlite3, json, random, asyncio, intersection
+import discord, json, random, asyncio, intersection
 from discord.ext import commands
+from libs import asqlite
 
 class On_member_join(commands.Cog):
 
@@ -8,8 +9,7 @@ class On_member_join(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
+        player = discord.utils.get(member.guild.roles,name="IC player")
 
         with open("config/validguilds.json", "r") as config:
             validated  = member.guild.id in json.load(config)
@@ -23,6 +23,21 @@ class On_member_join(commands.Cog):
             description = f"{member.mention} {member}",
             timestamp = member.joined_at
         )
+
+        async with asqlite.connect("database.sqlite") as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(f'SELECT ic_id FROM accounts WHERE discord_id = {member.id}')
+                data = await cursor.fetchone()
+
+        if data:
+            logged.set_author(name="User Auto-Bypassed!", icon_url=member.avatar_url)
+            logged.color = discord.Color.green()
+            logged.add_field(name="ID", value=data[0])
+
+            await logs.send(embed=logged)
+            await member.add_roles(player)
+            
+            return
 
         chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M']
         name = ""
@@ -100,20 +115,20 @@ class On_member_join(commands.Cog):
 
             embed.set_footer(text = member.name, icon_url = member.avatar_url)
 
-            player = discord.utils.get(member.guild.roles,name="IC player")
-            unverified = discord.utils.get(member.guild.roles,name="Unverified")
-
-            cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
-            cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {member.id}")
-            data = cursor.fetchone()
+            async with asqlite.connect("database.sqlite") as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+                    await cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {member.id}")
+                    data = await cursor.fetchone()
                 
-            if not data:
-                cursor.execute(f"INSERT INTO accounts(discord_id, ic_id) VALUES({member.id}, {id})")
-            else:
-                cursor.execute(f"UPDATE accounts SET ic_id = {id} WHERE discord_id = {member.id}")
+                    if not data:
+                        cursor.execute(f"INSERT INTO accounts(discord_id, ic_id) VALUES({member.id}, {id})")
+                    else:
+                        cursor.execute(f"UPDATE accounts SET ic_id = {id} WHERE discord_id = {member.id}")
+
+                    await conn.commit()
 
             await member.add_roles(player)
-            await member.remove_roles(unverified)
 
             await member.send(embed = embed)
 
@@ -122,6 +137,14 @@ class On_member_join(commands.Cog):
 
             await logs.send(embed=logged)
 
+            async with asqlite.connect("database.sqlite") as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute(f'SELECT * FROM accounts')
+                    amount_of_users = await cursor.fetchall()
+
+            activity = discord.Activity(name=f"{len(amount_of_users)} Linked Accounts", type=discord.ActivityType.watching)
+            await self.client.change_presence(status=discord.Status.online, activity=activity)
+
         else:
             logged.set_author(name="Verification Failed", icon_url=member.avatar_url)
             logged.color = discord.Color.red()
@@ -129,9 +152,6 @@ class On_member_join(commands.Cog):
             await logs.send(embed=logged)
             await member.send(f"Your latest map's name ({map.name}) doesn't match the verification name ({name})! I have stopped the verification process. Type `ic verify` if you wish to restart.")
 
-        database.commit()
-        cursor.close()
-        database.close()
 
 def setup(client):
     client.add_cog(On_member_join(client))

@@ -1,5 +1,6 @@
-import discord, intersection, sqlite3, datetime
+import discord, intersection, datetime
 from discord.ext import commands
+from libs import asqlite
 
 class Map(commands.Cog):
 
@@ -23,12 +24,12 @@ class Map(commands.Cog):
             ic_id = int(where)
 
         if discord_id:
-            database = sqlite3.connect("database.sqlite")
-            cursor = database.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+            async with asqlite.connect("database.sqlite") as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
 
-            cursor.execute(f'SELECT ic_id FROM accounts WHERE discord_id = {discord_id}')
-            id = cursor.fetchone()
+                    await cursor.execute(f'SELECT ic_id FROM accounts WHERE discord_id = {discord_id}')
+                    id = await cursor.fetchone()
 
             if not id:
                 embed = discord.Embed(
@@ -43,16 +44,13 @@ class Map(commands.Cog):
 
             discordid = discord_id
 
-            cursor.close()
-            database.close()
-
         elif ic_id:
-            database = sqlite3.connect("database.sqlite")
-            cursor = database.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+            async with asqlite.connect("database.sqlite") as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
 
-            cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {ic_id}')
-            account = cursor.fetchone()
+                    await cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {ic_id}')
+                    account = await cursor.fetchone()
 
             if account:
                 discordid = account[0]
@@ -61,9 +59,6 @@ class Map(commands.Cog):
                 discordid = None
 
             account = intersection.user.get_details_for_user(userId = ic_id)
-
-            cursor.close()
-            database.close()
          
         maps = account.get_user_maps()
         map = maps[index]
@@ -102,21 +97,18 @@ class Map(commands.Cog):
 
         map = intersection.map.find_top_maps(gameMode=gamemode, time=time, result=1, page=pos, offset=0)[0]
 
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+        async with asqlite.connect("database.sqlite") as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
 
-        cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {map.author}')
-        account = cursor.fetchone()
+                await cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {map.author}')
+                account = await cursor.fetchone()
 
         if account:
             discordid = account[0]
 
         else:
             discordid = None
-
-        cursor.close()
-        database.close()
 
         embed = discord.Embed(
             title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites}",
@@ -142,10 +134,6 @@ class Map(commands.Cog):
 
     @map.command()
     async def search(self, ctx, gamemode, *, query):
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
-
         if gamemode.lower() in ['sim', 'simulation', '1']: gamemode = 1
         elif gamemode.lower() in ['tc', 'trafficcontroller', '2']: gamemode = 2
 
@@ -166,21 +154,20 @@ class Map(commands.Cog):
             color = discord.Color.blue()
         )
 
-        for map in maps:
-            linked = "Not linked"
-            
-            cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {map.author}')
-            account = cursor.fetchone()
+        async with asqlite.connect("database.sqlite") as conn:
+            async with conn.cursor() as cursor:
+                for map in maps:
+                    linked = "Not linked"
+                    
+                    await cursor.execute(f'SELECT discord_id FROM accounts WHERE ic_id = {map.author}')
+                    account = await cursor.fetchone()
 
-            if account:
-                linked = self.client.get_user(account[0])
+                    if account:
+                        linked = self.client.get_user(account[0])
 
-            embed.add_field(name=f"{map.name} <:IC_like:759059895424909380> {map.votesUp} <:IC_dislike:759060520455766036> {map.votesDown} :white_heart: {map.favorites}", value=f"**Author:** {map.authorName} | **Discord:** {linked}", inline=False)
+                    embed.add_field(name=f"{map.name} <:IC_like:759059895424909380> {map.votesUp} <:IC_dislike:759060520455766036> {map.votesDown} :white_heart: {map.favorites}", value=f"**Author:** {map.authorName} | **Discord:** {linked}", inline=False)
 
         embed.set_footer(text = ctx.author.name, icon_url = ctx.author.avatar_url)
-
-        cursor.close()
-        database.close()
 
         await ctx.reply(embed=embed, mention_author=False)
 

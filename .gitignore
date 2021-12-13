@@ -4,6 +4,8 @@
 # VS Code
 .vscode/
 
+# VS
+.vs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

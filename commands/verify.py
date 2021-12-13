@@ -1,5 +1,7 @@
-import discord, sqlite3, json, random, asyncio, intersection
+import discord, json, random, asyncio, intersection
 from discord.ext import commands
+from main import guild_id
+from libs import asqlite
 
 class Verify(commands.Cog):
 
@@ -27,11 +29,8 @@ class Verify(commands.Cog):
 
         await ctx.message.add_reaction('📬')
 
-        guild = self.client.get_guild(469861886960205824)
+        guild = self.client.get_guild(guild_id)
         member = guild.get_member(member.id)
-
-        database = sqlite3.connect("database.sqlite")
-        cursor = database.cursor()
 
         logs = discord.utils.get(guild.channels, name="verification-logs")
 
@@ -118,14 +117,19 @@ class Verify(commands.Cog):
             player = discord.utils.get(guild.roles,name="IC player")
             unverified = discord.utils.get(guild.roles,name="Unverified")
 
-            cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
-            cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {member.id}")
-            data = cursor.fetchone()
-                
-            if not data:
-                cursor.execute(f"INSERT INTO accounts(discord_id, ic_id) VALUES({member.id}, {id})")
-            else:
-                cursor.execute(f"UPDATE accounts SET ic_id = {id} WHERE discord_id = {member.id}")
+            async with asqlite.connect("database.sqlite") as conn:
+                async with conn.cursor() as cursor:
+
+                    await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
+                    await cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {member.id}")
+                    data = await cursor.fetchone()
+                        
+                    if not data:
+                        await cursor.execute(f"INSERT INTO accounts(discord_id, ic_id) VALUES({member.id}, {id})")
+                    else:
+                        await cursor.execute(f"UPDATE accounts SET ic_id = {id} WHERE discord_id = {member.id}")
+
+                    await conn.commit()
 
             await member.add_roles(player)
             await member.remove_roles(unverified)
@@ -137,16 +141,20 @@ class Verify(commands.Cog):
 
             await logs.send(embed=logged)
 
+            async with asqlite.connect("database.sqlite") as conn:
+                async with conn.cursor() as cursor:
+                    await cursor.execute(f'SELECT * FROM accounts')
+                    amount_of_users = await cursor.fetchall()
+
+            activity = discord.Activity(name=f"{len(amount_of_users)} Linked Accounts", type=discord.ActivityType.watching)
+            await self.client.change_presence(status=discord.Status.online, activity=activity)
+
         else:
             logged.set_author(name="Verification Failed", icon_url=member.avatar_url)
             logged.color = discord.Color.red()
 
             await logs.send(embed=logged)
             await member.send(f"Your latest map's name ({map.name}) doesn't match the verification name ({name})! I have stopped the verification process. Type `ic verify` if you wish to restart.")
-
-        database.commit()
-        cursor.close()
-        database.close()
 
 def setup(client):
     client.add_cog(Verify(client))
