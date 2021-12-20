@@ -4,9 +4,6 @@ from dotenv import load_dotenv
 from libs import asqlite
 
 intents = discord.Intents.all()
-discord.member = True
-discord.guild = True
-discord.reaction = True
 
 load_dotenv(dotenv_path = "./config/token.env")
 TOKEN = os.getenv('TOKEN')
@@ -52,7 +49,7 @@ def roles(member: discord.Member, followers, guild: discord.Guild):
     temp_add = []
     temp_remove = []
 
-    if followers:
+    if followers != None:
         if followers > 1000:
             if less in member_roles:
                 temp_remove.append(less)
@@ -204,7 +201,7 @@ async def update_follower_roles(member: discord.Member, guild: discord.Guild):
         await member.add_roles(*roles(member, None, guild)[0], reason = "Updating follower roles.")
         await member.remove_roles(*roles(member, None, guild)[1], reason = "Updating follower roles.")
 
-@tasks.loop(seconds=60)
+@tasks.loop(minutes=1)
 async def follower_roles():
     guild = client.get_guild(guild_id)
     task = []
