@@ -1,5 +1,7 @@
 import discord, ast, asyncio
 from discord.ext import commands
+import intersection
+from matplotlib import interactive, pyplot as plt
 from libs import asqlite
 
 async def database(what):
@@ -59,7 +61,10 @@ class Debug(commands.Cog):
             '__import__': __import__,
             'self': self,
             'database': database,
-            'asyncio': asyncio
+            'asyncio': asyncio,
+            "plt": plt,
+            'intersection': intersection,
+            'asqlite': asqlite
         }
         exec(compile(parsed, filename="<ast>", mode="exec"), env)
 

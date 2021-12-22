@@ -16,8 +16,18 @@ class Help(commands.Cog):
 
         embed.add_field(name="Admin / Developer", value="`ic link` `ic unlink` `ic debug` `ic bypass`", inline=False)
         embed.add_field(name="Profiles and Stuff", value="`ic profile` `ic verify` `ic map` `ic search` `getfrom`", inline=False)
-        embed.add_field(name="Other", value="`ic cheats` `ic rules` `ic suggest` `ic help` `ic ping`", inline=False)
+        embed.add_field(name="Other", value="`ic cheats` `ic rules` `ic suggest` `ic help` `ic ping` `ic chart`", inline=False)
 
+
+        await ctx.reply(embed = embed, mention_author=False)
+
+    @help.command()
+    async def chart(self, ctx):
+        embed = discord.Embed(
+            title = "<:neutral:905485648478228490> Chart Command",
+            description = "Sends a follower chart based on users' roles.\n\nSyntax: `ic chart`",
+            color = discord.Color.blue()
+        )
 
         await ctx.reply(embed = embed, mention_author=False)
 
