@@ -25,24 +25,6 @@ async def typing(ctx):
     if not ctx.command.name in ['verify', 'suggest']:
         await ctx.trigger_typing()
 
-@client.event
-async def on_ready():
-    login_info = f">> Logged in as {client.user}"
-    if DEBUG: login_info += " (Debug)"
-
-    print(login_info)
-
-    async with asqlite.connect("database.sqlite") as conn:
-        async with conn.cursor() as cursor:
-
-            await cursor.execute(f'SELECT * FROM accounts')
-            amount_of_users =  await cursor.fetchall()
-
-    activity = discord.Activity(name=f"{len(amount_of_users)} Linked Accounts", type=discord.ActivityType.watching)
-    await client.change_presence(status=discord.Status.online, activity=activity)
-
-    follower_roles.start()
-
 def roles(member: discord.Member, followers, guild: discord.Guild):
     less = discord.utils.get(guild.roles,name="Newbie (Below 10 Followers)")
     f10 = discord.utils.get(guild.roles,name="10+ Followers")

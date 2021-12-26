@@ -1,7 +1,7 @@
 import discord, ast, asyncio
 from discord.ext import commands
 import intersection
-from matplotlib import interactive, pyplot as plt
+from matplotlib import pyplot as plt
 from libs import asqlite
 
 async def database(what):

@@ -1,10 +1,8 @@
-import asyncio, io
+import io
 import discord, intersection
 from discord.ext import commands
 from matplotlib import pyplot as plt
 from libs import asqlite
-from collections import Counter
-import pandas as pd
 
 async def get_followers(member: discord.Member):
     async with asqlite.connect("database.sqlite") as conn:

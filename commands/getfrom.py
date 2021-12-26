@@ -1,4 +1,4 @@
-import discord, intersection, datetime
+import discord, intersection
 from discord.ext import commands
 from libs import asqlite
 
