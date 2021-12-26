@@ -3,6 +3,10 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from libs import asqlite
 
+DEBUG = False
+if __file__ == r"c:\Users\HP\Desktop\vs-code\ICBot Rewrite\main.py":
+    DEBUG = True
+
 intents = discord.Intents.all()
 
 load_dotenv(dotenv_path = "./config/token.env")
@@ -12,7 +16,9 @@ client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = i
 
 client.remove_command('help')
 client.owner_id = 585115156757872653
-guild_id = 744653826799435806 # test = 744653826799435806 # ic = 469861886960205824
+
+guild_id = 469861886960205824 # test = 744653826799435806 # ic = 469861886960205824
+if DEBUG: guild_id = 744653826799435806 
 
 @client.before_invoke
 async def typing(ctx):
@@ -21,7 +27,10 @@ async def typing(ctx):
 
 @client.event
 async def on_ready():
-    print(f">> Logged in as {client.user}")
+    login_info = f">> Logged in as {client.user}"
+    if DEBUG: login_info += " (Debug)"
+
+    print(login_info)
 
     async with asqlite.connect("database.sqlite") as conn:
         async with conn.cursor() as cursor:

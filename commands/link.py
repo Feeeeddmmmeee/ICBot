@@ -2,6 +2,8 @@ import discord, intersection, json
 from discord.ext import commands
 from libs import asqlite
 
+from exceptions.errors import GuildNotValidated
+
 class Link(commands.Cog):
 
     def __init__(self, client):
@@ -14,14 +16,7 @@ class Link(commands.Cog):
         with open("config/validguilds.json", "r") as config:
             validated  = ctx.guild.id in json.load(config)
 
-        if not validated:
-            embed = discord.Embed(
-                description = f"<:neutral:905485648478228490> This command isn't available in your server!",
-                color = discord.Color.blue()
-            )
-
-            await ctx.reply(embed=embed, mention_author=False)
-            return
+        if not validated: raise GuildNotValidated
 
         ic_user = intersection.user.get_details_for_user(userId = object_id)
 

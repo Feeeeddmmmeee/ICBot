@@ -1,5 +1,6 @@
 import discord, datetime
 from discord.ext import commands
+from exceptions.errors import GuildNotValidated
 
 class On_command_error(commands.Cog):
 
@@ -26,6 +27,14 @@ class On_command_error(commands.Cog):
 
         elif isinstance(error, commands.errors.CommandNotFound):
             pass
+
+        elif isinstance(error, GuildNotValidated):
+            embed = discord.Embed(
+                description = f"<:neutral:905485648478228490> This command isn't available in your server!",
+                color = discord.Color.blue()
+            )
+
+            await ctx.reply(embed=embed, mention_author=False)
 
         else:
             embed = discord.Embed(
