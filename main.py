@@ -10,7 +10,7 @@ if __file__ == r"c:\Users\HP\Desktop\vs-code\ICBot Rewrite\main.py":
 intents = discord.Intents.all()
 
 load_dotenv(dotenv_path = "./config/token.env")
-TOKEN = os.getenv('TOKEN')
+TOKEN = os.getenv('TOKEN')  
 
 client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = intents, allowed_mentions=discord.AllowedMentions(everyone=False))
 

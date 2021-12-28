@@ -12,6 +12,7 @@ class Map(commands.Cog):
         dislike = self.client.get_emoji(759060520455766036)
         like = self.client.get_emoji(759059895424909380)
         index -= 1;
+        if index < 0: raise IndexError("Map index must be greater than or equal to 1!")
         discord_id, ic_id = None, None
 
         if not where: discord_id = ctx.author.id

@@ -36,7 +36,7 @@ class Profile(commands.Cog):
         )
 
         embed.set_author(name = user, icon_url = user.avatar_url)
-        embed.add_field(name = "Intersection Controller", value = f"**Nickname:** {account.name}\n**ID:** {account.objectId}\n**Followers:** {account.followers}\n**Last login:** {datetime.datetime.fromtimestamp(round(account.lastLogin / 1000.0))}\n**Maps:** {account.maps}")
+        embed.add_field(name = "Intersection Controller", value = f"**Nickname:** {account.name}\n**ID:** {account.objectId}\n**Followers:** {account.followers}\n**Last login:** <t:{round(account.lastLogin / 1000.0)}:R>\n**Maps:** {account.maps}")
         embed.set_footer(text = ctx.author.name, icon_url = ctx.author.avatar_url)
 
         await ctx.reply(embed = embed, mention_author = False)
