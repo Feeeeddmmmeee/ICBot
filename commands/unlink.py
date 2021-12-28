@@ -2,7 +2,7 @@ import discord, json
 from discord.ext import commands
 from libs import asqlite
 
-from exceptions.errors import GuildNotValidated
+from exceptions.CommandErrors import GuildNotValidated
 
 class Unlink(commands.Cog):
 
@@ -14,7 +14,7 @@ class Unlink(commands.Cog):
     async def unlink(self, ctx, user : discord.Member):
         guild = ctx.guild
 
-        with open("config/validguilds.json", "r") as config:
+        with open("config/ValidGuilds.json", "r") as config:
             validated  = ctx.guild.id in json.load(config)
 
         if not validated: raise GuildNotValidated

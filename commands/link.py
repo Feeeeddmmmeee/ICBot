@@ -2,7 +2,7 @@ import discord, intersection, json
 from discord.ext import commands
 from libs import asqlite
 
-from exceptions.errors import GuildNotValidated
+from exceptions.CommandErrors import GuildNotValidated
 
 class Link(commands.Cog):
 
@@ -13,7 +13,7 @@ class Link(commands.Cog):
     @commands.has_guild_permissions(manage_roles = True)
     async def link(self, ctx, user : discord.User, object_id):
 
-        with open("config/validguilds.json", "r") as config:
+        with open("config/ValidGuilds.json", "r") as config:
             validated  = ctx.guild.id in json.load(config)
 
         if not validated: raise GuildNotValidated

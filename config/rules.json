@@ -1,74 +1,38 @@
 {
     "1": {
-        "title": "1. Swearing",
-        "desc": "Keep swearing to a minimum, we want a toxic free enviroment!"
+        "title": "1. Respect and discrimination.",
+        "desc": "Please be respectful at all times. This means no racism, homophobia, slurs, harassment, excessive swearing, etc. We don’t want anyone to feel uncomfortable in themselves in our server. Do not create any drama or conflicts, or carry any over from other servers into this one."
     },
     "2": {
-        "title": "2. Spamming Content",
-        "desc": "Repeatedly sending unnecessary and random messages (5 or more times) in any channel will result in a 10+ minute mute. (except <#597986251659935755>)"
+        "title": "2. Personal information.",
+        "desc": "Sharing anyone's personal information without their consent will be strictly punished. This also includes leaking DMs of sensitive topics."
     },
     "3": {
-        "title": "3. Argumentative Situations",
-        "desc": "Anybody causing argumentative situations or drama can result in Administrative Action being taken against themselves."
+        "title": "3. No NSFW.",
+        "desc": "Absolutely no NSFW is allowed, this extends to lewd art, memes, gifs, etc. NSFW channels are also off-limits and we won't create one."
     },
     "4": {
-        "title": "4. Disrespectful Actions",
-        "desc": "Do not disrespect anyone in this server, this also includes derogatory terms, slurs, racism or other offensive material."
+        "title": "4. Keep the server clean and use channels accordingly.",
+        "desc": "Make sure you are not spamming outside of <#597986251659935755>, avoid pinging people without a valid reason and make sure you're in the right channel before posting."
     },
     "5": {
-        "title": "5. Not Safe For Work Content",
-        "desc": "Sorry Whiteout, NSFW is not allowed, this will result in a temporary ban or permanent ban from the server"
+        "title": "5. No advertisement.",
+        "desc": "Do not advertise yourself, or DM advertise anything such as servers, social medias, etc. without explicitly stated consent. Obviously advertising your IC maps and IC YouTube channels are allowed in the appropriate channels i.e. <#629746121522151454> for IC related channels/videos and <#470134562597502977> for IC maps."
     },
     "6": {
-        "title": "6. Self Advertisement",
-        "desc": "Do not DM anyone a server invite (without permission). **If you own a guild of people from one country who are all playing IC feel free to ask us to add it to <#769620613580455946>!**"
-    },
-    "7": {
-        "title": "7. Nicknames",
-        "desc": "You can change your nickname to whatever you want, as long as it follows the rules, but you shouldn't change it rapidly (applies if you have gone through the new verification system)."
-    },
-    "8": {
-        "title": "8. IC Life",
-        "desc": "Your IC life will determine if you are trusted. Bullies and hackers get ban."
-    },
-    "9": {
-        "title": "9. Channel Relevance",
-        "desc": "Keep relevant topics in their correct text channels."
-    },
-    "10": {
-        "title": "10. Appropriate Profile Pictures",
-        "desc": "Have appropriate profile pictures, they may not be pornography, or have relations to a terrorist organization or a cult. Absolutely no trolling with profile pictures. Same applied to nicknames **and** your discord user names."
-    },
-    "11": {
-        "title": "11. Harassment",
-        "desc": "Harassing other people will result in a mute or a kick from the server."
-    },
-    "12": {
-        "title": "12. Drugs",
+        "title": "6. Drugs.",
         "desc": "You are not allowed to be under the influence of drugs, etc. while chatting."
     },
-    "13": {
-        "title": "13. MiniModding",
-        "desc": "MiniModding is prohibited, this includes continuously correcting someone's actions, asking for someone's ban, mute or other administrative action taken against another, or asking for demotion of admins. Don't act like you were an admin, because you will get a strict punishment."
+    "7": {
+        "title": "7. Loopholes and alt accounts.",
+        "desc": "Do not evade any rules within the server by attempting to use loopholes. Joining with alt accounts after a ban is forbidden and will be strictly punished as we are banning the person not their account. You can also be punished for actions that are not explicitly stated if the severity is deemed adequate to suffice reprimands."
     },
-    "14": {
-        "title": "14. Pinging",
-        "desc": "No unnecessary pinging other members is allowed. It's especially prohibited to ping the owner, the admins, and the whole roles. You can get a role to get pinged when there are important news in the server, you get it by typing `?rank Notifications-Server` in <#709323713207599134>."
+    "moderation": {
+        "title": "Moderation",
+        "desc": "- Breaking the rules will give you a **warn** and depending on the offense we may take further action.\n- Reaching **3 warns** means immediate **temporary ban** for 14 days.\n- Every warn after 3 warns will give you longer temporary bans depending on action."
     },
-    "15": {
-        "title": "15. Evasion",
-        "desc": "Absolutely no trying to make a loophole around the rules, doing such will result in further punishment than already established."
-    },
-    "16": {
-        "title": "16. Alt accounts",
-        "desc": "You are only allowed to join with your alt account, if you state that it's you. Hiding your alt will result in kicking it."
-    },
-    "17": {
-        "title": "17. Personal information",
-        "desc": "Without permission of the person, you are not allowed to reveal and share their personal information, such as name, adress, age, etc. This goes also for leaking DMs (Direct Messages)."
-    },
-    "18": {
-        "title": "18. Admins",
-        "desc": "Admins also have to follow the server rules. They punish people only depending on the severity of the issue. Admins are always right in arguments about rules and punishments."
+    "ban": {
+        "title": "Permanent Bans",
+        "desc": "- Permanent bans are specific to each case.\n- Moderators have the last word on bans."
     }
 }

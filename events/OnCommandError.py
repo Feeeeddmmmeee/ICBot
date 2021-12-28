@@ -1,8 +1,8 @@
 import discord, datetime
 from discord.ext import commands
-from exceptions.errors import GuildNotValidated
+from exceptions.CommandErrors import GuildNotValidated, InvalidRule
 
-class On_command_error(commands.Cog):
+class OnCommandError(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -36,6 +36,14 @@ class On_command_error(commands.Cog):
 
             await ctx.reply(embed=embed, mention_author=False)
 
+        elif isinstance(error, InvalidRule):
+            embed = discord.Embed(
+                description = f"<:neutral:905485648478228490> There is no such rule!",
+                color = discord.Color.blue()
+            )
+
+            await ctx.reply(embed=embed, mention_author = False)
+
         else:
             embed = discord.Embed(
                 color = discord.Color.from_rgb(237, 50, 31),
@@ -50,4 +58,4 @@ class On_command_error(commands.Cog):
         
 
 def setup(client):
-    client.add_cog(On_command_error(client))
+    client.add_cog(OnCommandError(client))

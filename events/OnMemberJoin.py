@@ -2,7 +2,7 @@ import discord, json, random, asyncio, intersection
 from discord.ext import commands
 from libs import asqlite
 
-class On_member_join(commands.Cog):
+class OnMemberJoin(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -11,7 +11,7 @@ class On_member_join(commands.Cog):
     async def on_member_join(self, member: discord.Member):
         player = discord.utils.get(member.guild.roles,name="IC player")
 
-        with open("config/validguilds.json", "r") as config:
+        with open("config/ValidGuilds.json", "r") as config:
             validated  = member.guild.id in json.load(config)
 
         if not validated:
@@ -157,4 +157,4 @@ class On_member_join(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(On_member_join(client))
+    client.add_cog(OnMemberJoin(client))

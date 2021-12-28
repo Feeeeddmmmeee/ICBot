@@ -1,7 +1,7 @@
 import discord, json
 from discord.ext import commands
 
-from exceptions.errors import GuildNotValidated
+from exceptions.CommandErrors import GuildNotValidated
 
 class Suggest(commands.Cog):
 
@@ -11,7 +11,7 @@ class Suggest(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def suggest(self, ctx, *, suggestion):
-        with open("config/validguilds.json", "r") as config:
+        with open("config/ValidGuilds.json", "r") as config:
             validated  = ctx.guild.id in json.load(config)
 
         if not validated: raise GuildNotValidated

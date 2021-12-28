@@ -1,7 +1,7 @@
 import discord, json
 from discord.ext import commands
 
-from exceptions.errors import GuildNotValidated
+from exceptions.CommandErrors import GuildNotValidated
 
 class Bypass(commands.Cog):
 
@@ -10,8 +10,8 @@ class Bypass(commands.Cog):
 
     @commands.command()
     @commands.has_guild_permissions(manage_roles = True)
-    async def bypass(self, ctx, member: discord.Member):
-        with open("config/validguilds.json", "r") as config:
+    async def bypass(self, ctx, member: discord.Member, *, reason = None):
+        with open("config/ValidGuilds.json", "r") as config:
             validated  = ctx.guild.id in json.load(config)
 
         if not validated: raise GuildNotValidated
@@ -30,6 +30,7 @@ class Bypass(commands.Cog):
 
         logged.set_author(name="User Bypassed", icon_url=member.avatar_url)
         logged.add_field(name="Bypassed By", value=str(ctx.author))
+        logged.add_field(name="Reason", value=reason)
 
         await logs.send(embed = logged)  
 

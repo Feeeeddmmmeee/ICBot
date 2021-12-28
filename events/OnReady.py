@@ -3,7 +3,7 @@ from discord.ext import commands
 from libs import asqlite
 from main import follower_roles, DEBUG
 
-class On_ready(commands.Cog):
+class OnReady(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -27,4 +27,4 @@ class On_ready(commands.Cog):
         follower_roles.start()
 
 def setup(client):
-    client.add_cog(On_ready(client))
+    client.add_cog(OnReady(client))
