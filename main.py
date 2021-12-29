@@ -21,7 +21,7 @@ guild_id = 469861886960205824 # test = 744653826799435806 # ic = 469861886960205
 if DEBUG: guild_id = 744653826799435806 
 
 @client.before_invoke
-async def typing(ctx):
+async def typing(ctx: commands.Context):
     if not ctx.command.name in ['verify', 'suggest']:
         await ctx.trigger_typing()
 

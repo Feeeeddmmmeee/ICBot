@@ -25,7 +25,7 @@ class Help(commands.Cog):
     async def chart(self, ctx):
         embed = discord.Embed(
             title = "<:neutral:905485648478228490> Chart Command",
-            description = "Sends a follower chart based on users' roles.\n\nSyntax: `ic chart`",
+            description = "Sends a follower chart based on users' raw followers/roles.\n\nSyntax 1: `ic chart roles` (fast)\nSyntax 2: `ic chart all <how to round (optional)>` (takes about 20 seconds to execute)",
             color = discord.Color.blue()
         )
 
@@ -45,7 +45,7 @@ class Help(commands.Cog):
     async def unlink(self, ctx):
         embed = discord.Embed(
             title = "<:neutral:905485648478228490> Unlink Command",
-            description = "Unlinks an Intersection Controller account from a Discord user!\n\nSynrax: `ic unlink <user>`",
+            description = "Unlinks an Intersection Controller account from a Discord user!\n\nSyntax: `ic unlink <user>`",
             color = discord.Color.blue()
         )
 

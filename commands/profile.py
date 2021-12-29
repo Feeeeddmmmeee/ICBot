@@ -8,7 +8,7 @@ class Profile(commands.Cog):
         self.client = client
 
     @commands.command(aliases = ['userinfo', 'discord', 'user', 'ui', 'whois'])
-    async def profile(self, ctx, user: discord.User = None):
+    async def profile(self, ctx, *, user: discord.User = None):
         if not user: user = ctx.author
         await ctx.trigger_typing()
 
