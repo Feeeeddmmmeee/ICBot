@@ -10,7 +10,7 @@ class Bypass(commands.Cog):
 
     @commands.command()
     @commands.has_guild_permissions(manage_roles = True)
-    async def bypass(self, ctx, member: discord.Member, *, reason = None):
+    async def bypass(self, ctx: commands.Context, member: discord.Member, *, reason = None):
         with open("config/ValidGuilds.json", "r") as config:
             validated  = ctx.guild.id in json.load(config)
 
@@ -18,7 +18,7 @@ class Bypass(commands.Cog):
 
         player = discord.utils.get(ctx.guild.roles,name="IC player")
 
-        await member.add_roles(player)
+        await member.add_roles(player, reason=f"User bypassed by {ctx.author}")
 
         logs = discord.utils.get(ctx.guild.channels, name="verification-logs")
 

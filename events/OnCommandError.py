@@ -8,7 +8,7 @@ class OnCommandError(commands.Cog):
         self.client = client
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx, error: commands.errors.CommandError):
         if isinstance(error, commands.errors.CommandOnCooldown):
             command = self.client.get_command('suggest')
 

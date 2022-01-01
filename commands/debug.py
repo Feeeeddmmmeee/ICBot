@@ -1,6 +1,5 @@
-import discord, ast, asyncio
+import discord, ast, asyncio, intersection
 from discord.ext import commands
-import intersection
 from matplotlib import pyplot as plt
 from libs import asqlite
 

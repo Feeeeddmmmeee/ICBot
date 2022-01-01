@@ -31,39 +31,40 @@ class Chart(commands.Cog):
 
         raw_followers = []
 
-        for item in accounts:
-            raw_followers.append(round(intersection.user.get_details_for_user(userId=item[1]).followers, _round))
+        async with ctx.channel.typing():
+            for item in accounts:
+                raw_followers.append(round(intersection.user.get_details_for_user(userId=item[1]).followers, _round))
 
-        raw_followers.sort()
+            raw_followers.sort()
 
-        amount_of_followers = list(dict.fromkeys(raw_followers))
+            amount_of_followers = list(dict.fromkeys(raw_followers))
 
-        counter = Counter(raw_followers)
-        amount_of_users = []
+            counter = Counter(raw_followers)
+            amount_of_users = []
 
-        for item in amount_of_followers:
-            amount_of_users.append(counter[item])
+            for item in amount_of_followers:
+                amount_of_users.append(counter[item])
 
-        y = amount_of_users # amount of USERS
-        x = amount_of_followers # amount of FOLLOWERS
+            y = amount_of_users # amount of USERS
+            x = amount_of_followers # amount of FOLLOWERS
 
-        plt.plot(x,y)
+            plt.plot(x,y)
 
-        plt.title("Followers")
-        plt.ylabel("Amount of Users")
-        plt.xlabel("Amount of Followers")
+            plt.title("Followers")
+            plt.ylabel("Amount of Users")
+            plt.xlabel("Amount of Followers")
 
-        plt.savefig(data_stream, format='png', bbox_inches="tight", dpi = 80)
-        plt.close()
+            plt.savefig(data_stream, format='png', bbox_inches="tight", dpi = 80)
+            plt.close()
 
-        data_stream.seek(0)
-        chart = discord.File(data_stream,filename="follower_chart.png")
+            data_stream.seek(0)
+            chart = discord.File(data_stream,filename="follower_chart.png")
 
-        embed = discord.Embed(timestamp = ctx.message.created_at, color = discord.Color.blue(), title="Follower chart based on raw follower data")
-        embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
-        embed.set_image(url="attachment://follower_chart.png")
+            embed = discord.Embed(timestamp = ctx.message.created_at, color = discord.Color.blue(), title="Follower chart based on raw follower data")
+            embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
+            embed.set_image(url="attachment://follower_chart.png")
 
-        await ctx.reply(embed=embed, file=chart, mention_author=False)
+            await ctx.reply(embed=embed, file=chart, mention_author=False)
 
     @chart.command()
     async def roles(self, ctx):
