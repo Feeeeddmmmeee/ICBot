@@ -33,6 +33,7 @@ class Debug(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.send_embed = True
 
     @commands.is_owner()
     @commands.command(aliases = ['eval', 'ev'])
@@ -46,6 +47,15 @@ class Debug(commands.Cog):
 
         # wrap in async def body
         body = f"async def {fn_name}():\n{code}"
+
+        if self.send_embed:
+            embed = discord.Embed(
+                title=f"Executing Input",
+                description=f"```py\n{body}```",
+                color=discord.Color.green()
+            )
+            
+            await ctx.reply(embed=embed, mention_author=False)
 
         parsed = ast.parse(body)
         body = parsed.body[0].body
@@ -63,7 +73,7 @@ class Debug(commands.Cog):
             'asyncio': asyncio,
             "plt": plt,
             'intersection': intersection,
-            'asqlite': asqlite
+            'asqlite': asqlite,
         }
         exec(compile(parsed, filename="<ast>", mode="exec"), env)
 

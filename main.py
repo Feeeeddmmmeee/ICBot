@@ -12,13 +12,13 @@ intents = discord.Intents.all()
 load_dotenv(dotenv_path = "./config/token.env")
 TOKEN = os.getenv('TOKEN')  
 
-client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = intents, allowed_mentions=discord.AllowedMentions(everyone=False))
+client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = intents, allowed_mentions=discord.AllowedMentions(everyone=False), help_command=None)
 
-client.remove_command('help')
 client.owner_id = 585115156757872653
-
 guild_id = 469861886960205824 # test = 744653826799435806 # ic = 469861886960205824
-if DEBUG: guild_id = 744653826799435806 
+
+if DEBUG: 
+    guild_id = 744653826799435806 
 
 @client.before_invoke
 async def typing(ctx: commands.Context):

@@ -95,7 +95,7 @@ class Verify(commands.Cog):
 
         if(not user.maps):
             embed = discord.Embed(
-                title = ":link: Account Verification",
+                title = f":link: Account Verification - {user.name}",
                 description = "Now, in order to be verified, you'll need to **upload a new map** with the name I'll send you in my next message (just copy and paste it).\n\nRemember that you need to upload the map on the account you have previously posted the ID of or otherwise I will be unable to verify you! If you don't do so within 5 minutes I will automatically stop the process. Make sure not to delete the map until I verify you!\n\n:warning: **Do not share any of my messages unless you're sure what you're doing!**\nAnyone with this information will be able to link your account.",
                 color = discord.Color.blue(),
                 timestamp = datetime.now()
@@ -117,7 +117,7 @@ class Verify(commands.Cog):
             
             if(map.name == name):
                 embed = discord.Embed(
-                    title = ":link: Account Verification",
+                    title = f":link: Account Verification - {user.name}",
                     description = "You have been successfully verified. Now, go visit our server and try out a bunch of awesome commands! You can type `ic profile @member` to view their IC user information or just run `ic profile` to view yours.\n\nIf you want to delete the map you can do it now.\n\nThe verification map name I sent you isn't going to be used again so you can freely post it wherever you want now.",
                     color = discord.Color.blue(),
                     timestamp = datetime.now()
@@ -169,7 +169,7 @@ class Verify(commands.Cog):
 
         else:
             embed = discord.Embed(
-                title = ":link: Account Verification",
+                title = f":link: Account Verification - {user.name}",
                 description = f"Now, in order to be verified, you'll need to **post a new comment** under your **latest map** ({intersection.map.list_maps_by_user(userId = id, result = 1)[0].name}) with just the content of my next message (just copy and paste it).\n\nRemember that you need to post the comment with the account you have previously posted the ID of or otherwise I will be unable to verify you! If you don't do so within 5 minutes I will automatically stop the process. Make sure not to delete the comment until I verify you!\n\n:warning: **Do not share any of my messages unless you're sure what you're doing!**\nAnyone with this information will be able to link your account.",
                 color = discord.Color.blue(),
                 timestamp = ctx.message.created_at
@@ -191,7 +191,7 @@ class Verify(commands.Cog):
             
             if(comment.comment == name and comment.user == id):
                 embed = discord.Embed(
-                    title = ":link: Account Verification",
+                    title = f":link: Account Verification - {user.name}",
                     description = "You have been successfully verified. Now, go visit our server and try out a bunch of awesome commands! You can type `ic profile @member` to view someone's IC user information or just run `ic profile` with no arguments to view yours.\n\nIf you want to delete the comment you can do it now.\n\nThe verification code I sent you isn't going to be used again so you can freely post it wherever you want now.",
                     color = discord.Color.blue(),
                     timestamp = ctx.message.created_at
