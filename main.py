@@ -204,7 +204,7 @@ async def follower_roles():
         await future
 
 for filename in os.listdir('./commands'):
-    if filename.endswith('.py'):
+    if filename.endswith('.py') and not filename == "stats.py":
         client.load_extension(f'commands.{filename[:-3]}')
 
 for filename in os.listdir('./events'):

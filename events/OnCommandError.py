@@ -1,6 +1,8 @@
+from dis import disco
 import discord, datetime
 from discord.ext import commands
-from exceptions.CommandErrors import GuildNotValidated, InvalidRule
+from numpy import isin
+from exceptions.CommandErrors import *
 
 class OnCommandError(commands.Cog):
 
@@ -43,6 +45,40 @@ class OnCommandError(commands.Cog):
             )
 
             await ctx.reply(embed=embed, mention_author = False)
+
+        elif isinstance(error, InvalidGameMode):
+            embed = discord.Embed(
+                description = f"<:neutral:905485648478228490> There is no such game mode!",
+                color = discord.Color.blue()
+            )
+
+            await ctx.reply(embed=embed, mention_author = False)
+
+        elif isinstance(error, VerificationError):
+            logs = discord.utils.get(error.guild.channels, name="verification-logs")
+
+            embed = discord.Embed(
+                description = f"{error.member.mention} {error.member}",
+            )
+
+            embed.set_author(name="Verification Failed - Bot Error", icon_url=error.member.avatar_url)
+            embed.color = discord.Color.red()
+
+            embed.add_field(name="Caused by:", value=f"```{error}```")
+            embed.timestamp=datetime.datetime.now()
+
+            await logs.send(embed=embed)
+
+            embed = discord.Embed(
+                color = discord.Color.from_rgb(237, 50, 31),
+                title = "<:error:905485648373370890> Command raised an exception!",
+                timestamp = ctx.message.created_at,
+                description = f"```{error}```"
+            )
+            embed.add_field(name="Please contact the developer!", value="DM or mention Feeeeddmmmeee#7784.")
+            embed.set_footer(text=str(ctx.author), icon_url=ctx.author.avatar_url)
+
+            await error.channel.send(embed=embed, mention_author=False)
 
         else:
             embed = discord.Embed(

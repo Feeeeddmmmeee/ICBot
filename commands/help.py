@@ -95,7 +95,7 @@ class Help(commands.Cog):
     async def map(self, ctx):
         embed = discord.Embed(
             title = "<:neutral:905485648478228490> Map Command",
-            description = "Sends IC map information. Can be used on both **verified Discord users** and **Intersection Controller IDs**.\n\nSyntax 1: `ic map <index> <user>`\nSyntax 2: `ic map <index> <ic id>`",
+            description = "Sends IC map information. Can be used on both **verified Discord users** and **Intersection Controller IDs**.\n\nSyntax 1: `ic map <index> <user>`\nSyntax 2: `ic map <index> <ic id>`\n\n**Subcommands:**\nSyntax 1: `ic map trending <game mode> <time> <position>`\nSyntax 2: `ic map search <game mode> <query>`",
             color = discord.Color.blue()
         )
 

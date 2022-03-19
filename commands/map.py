@@ -1,6 +1,7 @@
 import discord, intersection, datetime
 from discord.ext import commands
 from libs import asqlite
+from exceptions.CommandErrors import InvalidGameMode
 
 class Map(commands.Cog):
 
@@ -65,7 +66,7 @@ class Map(commands.Cog):
         map = maps[index]
 
         embed = discord.Embed(
-            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites}",
+            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites} (like to update ratio: {round(map.votesUp / map.mapVersion, 1)})",
             description = map.desc,
             color = discord.Color.blue(),
             timestamp = ctx.message.created_at
@@ -94,7 +95,8 @@ class Map(commands.Cog):
 
         if gamemode.lower() in ['sim', 'simulation', '1']: gamemode = 1
         elif gamemode.lower() in ['tc', 'trafficcontroller', '2']: gamemode = 2
-        #elif gamemode.lower() in ['misc' 'miscellaneous' '3']: gamemode = 3
+        elif gamemode.lower() in ['misc' 'miscellaneous' '3']: gamemode = 3
+        else: raise InvalidGameMode
 
         map = intersection.map.find_top_maps(gameMode=gamemode, time=time, result=1, page=pos, offset=0)[0]
 
@@ -112,7 +114,7 @@ class Map(commands.Cog):
             discordid = None
 
         embed = discord.Embed(
-            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites}",
+            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites} (like to update ratio: {round(map.votesUp / map.mapVersion, 1)})",
             description = map.desc,
             color = discord.Color.blue(),
             timestamp = ctx.message.created_at
@@ -134,9 +136,11 @@ class Map(commands.Cog):
         await ctx.reply(embed = embed, mention_author = False)
 
     @map.command()
-    async def search(self, ctx, gamemode, *, query):
+    async def search(self, ctx, gamemode: str, *, query):
         if gamemode.lower() in ['sim', 'simulation', '1']: gamemode = 1
+        elif gamemode.lower() in ['misc' 'miscellaneous' '3']: gamemode = 3
         elif gamemode.lower() in ['tc', 'trafficcontroller', '2']: gamemode = 2
+        else: raise InvalidGameMode
 
         maps = intersection.map.search_for_maps(gameMode=gamemode, result=10, query=query)
 
