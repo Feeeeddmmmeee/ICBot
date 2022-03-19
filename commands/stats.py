@@ -26,7 +26,7 @@ class Stats(commands.Cog):
                     await cursor.execute("CREATE TABLE IF NOT EXISTS accounts (discord_id INTEGER, ic_id INTEGER)")
 
                     await cursor.execute(f'SELECT ic_id FROM accounts WHERE discord_id = {discord_id}')
-                    ic_id = (await cursor.fetchone())[0]
+                    ic_id = await cursor.fetchone()
 
             if not ic_id:
                 embed = discord.Embed(
@@ -36,6 +36,8 @@ class Stats(commands.Cog):
 
                 await ctx.reply(embed=embed, mention_author=False)
                 return
+
+        ic_id = ic_id[0]
 
         account = intersection.user.get_details_for_user(userId = ic_id)
         maps = account.get_user_maps()
