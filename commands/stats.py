@@ -41,7 +41,7 @@ class Stats(commands.Cog):
         maps = account.get_user_maps()
 
         total = [0, 0, 0, 0]
-        top = [0, 0, 0]
+        top = [0, 99999, 0]
         average = [0, 0, 0]
         dislike = self.client.get_emoji(759060520455766036)
         like = self.client.get_emoji(759059895424909380)
