@@ -15,9 +15,19 @@ class Help(commands.Cog):
         )
 
         embed.add_field(name="Admin / Developer", value="`ic link` `ic unlink` `ic debug` `ic bypass`", inline=False)
-        embed.add_field(name="Profiles and Stuff", value="`ic profile` `ic verify` `ic map` `ic search` `getfrom`", inline=False)
+        embed.add_field(name="Profiles and Stuff", value="`ic profile` `ic verify` `ic map` `ic search` `getfrom` `ic stats`", inline=False)
         embed.add_field(name="Other", value="`ic cheats` `ic rules` `ic suggest` `ic help` `ic ping` `ic chart`", inline=False)
 
+
+        await ctx.reply(embed = embed, mention_author=False)
+
+    @help.command()
+    async def stats(self, ctx):
+        embed = discord.Embed(
+            title = "<:neutral:905485648478228490> Stats Command",
+            description = "Sends detailed statistics about a given IC user.\n<user> can be set to one of the following: IC ID, Discord ID, Discord Mention or can be left empty to send your stats\n\nSyntax: `ic stats <user>`\n",
+            color = discord.Color.blue()
+        )
 
         await ctx.reply(embed = embed, mention_author=False)
 

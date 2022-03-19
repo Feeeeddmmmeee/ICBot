@@ -66,7 +66,7 @@ class Map(commands.Cog):
         map = maps[index]
 
         embed = discord.Embed(
-            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites} (like to update ratio: {round(map.votesUp / map.mapVersion, 1)})",
+            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites} (ratio: {round((map.votesUp - map.votesDown) / map.mapVersion, 1)})",
             description = map.desc,
             color = discord.Color.blue(),
             timestamp = ctx.message.created_at
@@ -114,7 +114,7 @@ class Map(commands.Cog):
             discordid = None
 
         embed = discord.Embed(
-            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites} (like to update ratio: {round(map.votesUp / map.mapVersion, 1)})",
+            title = f"{map.name} {like} {map.votesUp} {dislike} {map.votesDown} :white_heart: {map.favorites} (ratio: {round((map.votesUp - map.votesDown) / map.mapVersion, 1)})",
             description = map.desc,
             color = discord.Color.blue(),
             timestamp = ctx.message.created_at
