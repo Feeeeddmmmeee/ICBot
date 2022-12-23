@@ -19,39 +19,10 @@ class OnReady(commands.Cog):
     async def on_ready(self):
         logger.info(f"Logged in as {self.client.user}")
 
+        with open("schema.sql") as schema:
+            await self.client.connection.executescript(schema.read())
+
         async with self.client.connection.cursor() as cursor:
-            await cursor.execute("DROP TABLE IF EXISTS color_tags")
-            await cursor.execute("DROP TABLE IF EXISTS colors")
-            await cursor.execute("DROP TABLE IF EXISTS tags")
-            await cursor.execute("DROP TABLE IF EXISTS color_votes")
-
-            await cursor.execute("""CREATE TABLE IF NOT EXISTS accounts (
-                discord_id INTEGER, 
-                ic_id INTEGER, 
-                linked_at INTEGER)""")
-
-            await cursor.execute("CREATE TABLE IF NOT EXISTS guilds (guild_id INTEGER)")
-            await cursor.execute("""CREATE TABLE IF NOT EXISTS colors (
-                user_id INTEGER, 
-                submission_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                color INTEGER, 
-                upvotes INTEGER DEFAULT 1, 
-                downvotes INTEGER DEFAULT 0, 
-                created INTEGER)""")
-            
-            await cursor.execute("""CREATE TABLE IF NOT EXISTS tags (
-                tag_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                tag_name TEXT)""")
-
-            await cursor.execute("""CREATE TABLE IF NOT EXISTS color_tags (
-                submission_id INTEGER, 
-                tag_id INTEGER)""")
-
-            await cursor.execute("""CREATE TABLE IF NOT EXISTS color_votes (
-                user_id INTEGER, 
-                submission_id INTEGER, 
-                vote INTEGER)""")
-
             await insert_guilds(cursor, 744653826799435806, 469861886960205824)
 
             await self.client.connection.commit()

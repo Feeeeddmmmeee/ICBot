@@ -16,14 +16,14 @@ class Colors(commands.Cog):
     @app_commands.command(name="submit", description="Submit a color to the hex database.")
     @app_commands.describe(color = "The hex code of your color submission.")
     @app_commands.describe(tags="A list of tags you want to add to your color. (Separated by spaces, no more than 10 tags can be added, only lowercase letters, numbers and underscores are allowed)")
-    async def submit(self, interaction: discord.Interaction, color: str, tags: Optional[str] = None):
+    async def submit(self, interaction: discord.Interaction, color: str, name: str, description: str, tags: Optional[str] = None):
         await interaction.response.defer()
         color = color.replace("#", "").replace("0x", "")
         if tags: tags = tags.split(" ")
 
         async with self.client.connection.cursor() as cursor:
-            await cursor.execute("INSERT INTO colors (user_id, color, created) VALUES(?, ?, ?)", 
-                [interaction.user.id, int(color, 16), round(time.time() * 1000)])
+            await cursor.execute("INSERT INTO colors (user_id, color, created, name, description) VALUES(?, ?, ?, ?, ?)", 
+                [interaction.user.id, int(color, 16), round(time.time() * 1000), name, description])
 
             submission_id = cursor.lastrowid
             await cursor.execute("INSERT INTO color_votes (user_id, submission_id, vote) VALUES(?, ?, ?)", 

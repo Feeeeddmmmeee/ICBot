@@ -3,12 +3,11 @@ from discord.ext import commands
 from discord import app_commands
 
 from main import logger, MyClient
-from typing import List, Union
 import datetime
 import tl3api
 
 class Navigation(discord.ui.View):
-    def __init__(self, client: MyClient, list: Union[List[tl3api.Map], List[tl3api.User]], index = 0, *, timeout = 120):
+    def __init__(self, client: MyClient, list, index = 0, *, timeout = 120):
         self.client = client
         self.index = index
         self.list = list
@@ -38,6 +37,10 @@ class Navigation(discord.ui.View):
     async def last(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.index = 99
         await self.update_embed(interaction)
+
+class ColorNavigation(Navigation):
+    async def update_embed(self, interaction: discord.Interaction):
+        pass
 
 class MapNavigation(Navigation):
     async def update_embed(self, interaction: discord.Interaction):
@@ -107,9 +110,10 @@ class Search(commands.GroupCog, group_name="search"):
         super().__init__()
 
     @app_commands.command(name="users", description="Search for IC users.")
-    @app_commands.describe(query="Name to search for.")
-    @app_commands.describe(offset="Which index to start the search at (defaults to 0).")
-    @app_commands.describe(page="Page to start the search at (defaults to 0 i.e. the first one).")
+    @app_commands.describe(query="Name to search for.",
+        offset="Which index to start the search at (defaults to 0).",
+        page="Page to start the search at (defaults to 0 i.e. the first one)."
+    )
     async def users(self, interaction: discord.Interaction, query: str, offset: int = 0, page: int = 0):
         await interaction.response.defer()
         users = await self.client.ic.search_for_users(query=query, result=100, page=page)
@@ -148,9 +152,10 @@ class Search(commands.GroupCog, group_name="search"):
         app_commands.Choice(name="Traffic Controller", value="2"),
         app_commands.Choice(name="Miscellaneous", value="3")
     ])
-    @app_commands.describe(mode = "Game mode.", query="Name to search for.")
-    @app_commands.describe(offset="Which index to start the search at (defaults to 0).")
-    @app_commands.describe(page="Page to start the search at (defaults to 0 i.e. the first one).")
+    @app_commands.describe(mode = "Game mode.", query="Name to search for.",
+        offset="Which index to start the search at (defaults to 0).",
+        page="Page to start the search at (defaults to 0 i.e. the first one)."
+    )
     async def maps(self, interaction: discord.Interaction, mode: str, query: str, offset: int = 0, page: int = 0):
         await interaction.response.defer()
         mode = int(mode)
@@ -176,7 +181,6 @@ class Search(commands.GroupCog, group_name="search"):
             description=map.desc
         )
 
-        temp_mode = mode
         mode = ["Simulation", "Traffic Controller", "Miscellaneous"][mode - 1]
         embed.add_field(name="Map", value=f"> ` Game mode ` {mode}\n> ` Version   ` {map.map_version}\n> ` Created   ` <t:{round(map.created / 1000.0)}:R>\n> ` Updated   ` <t:{round(map.updated / 1000.0)}:R>")
         embed.add_field(name="User", value=f"> ` Nickname   ` {map.author_name}\n> ` ID         ` {map.author}\n> ` Last login ` <t:{round((await map.get_author()).last_login / 1000.0)}:R>\n> ` Discord    ` {user}")
@@ -190,10 +194,12 @@ class Search(commands.GroupCog, group_name="search"):
         app_commands.Choice(name="Top", value="top"),
         app_commands.Choice(name="New", value="new")
     ])
-    @app_commands.describe(order="In what order to return the search results.", tags="Tags to search for (separated by spaces)")
-    async def colors(self, interaction: discord.Interaction, order: str, tags: str = None):
+    @app_commands.describe(order="In what order to return the search results.", 
+        tags="Tags to search for (separated by spaces).",
+        offset="Which index to start the search at (defaults to 0)."
+    )
+    async def colors(self, interaction: discord.Interaction, order: str, tags: str = None, offset: int = 0):
         await interaction.response.defer()
-        
         async with self.client.connection.cursor() as cursor:
             if tags:
                 await cursor.execute(f"""
@@ -231,7 +237,30 @@ class Search(commands.GroupCog, group_name="search"):
 
             data = await cursor.fetchall()
 
-        await interaction.followup.send(data)
+        if not data:
+            await interaction.followup.send("No colors with such tags found.")
+            return
+
+        tag_list = ""
+
+        await cursor.execute("""
+        SELECT
+            tags.*
+        FROM
+            tags
+        INNER JOIN
+            
+        """)
+
+        embed = discord.Embed(
+            title=data[offset][6],
+            timestamp=datetime.datetime.now(),
+            color=discord.Color.from_str(hex(data[offset][2])),
+            description=tag_list + data[offset][7]
+        )
+        embed.set_footer(text = f"Page {offset + 1}/{len(data)}, 👍{data[offset][3]} 👎{data[offset][4]}")
+
+        await interaction.followup.send(embed=embed, view=ColorNavigation(self.client, data, offset))
 
 async def setup(client: commands.Bot):
     if client.debug:
