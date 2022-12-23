@@ -17,7 +17,6 @@ class Colors(commands.Cog):
     @app_commands.describe(color = "The hex code of your color submission.")
     @app_commands.describe(tags="A list of tags you want to add to your color. (Separated by spaces, no more than 10 tags can be added, only lowercase letters, numbers and underscores are allowed)")
     async def submit(self, interaction: discord.Interaction, color: str, name: str, description: str, tags: Optional[str] = None):
-        await interaction.response.defer()
         color = color.replace("#", "").replace("0x", "")
         if tags: tags = tags.split(" ")
 
@@ -53,7 +52,7 @@ class Colors(commands.Cog):
 
         await self.client.connection.commit()
         
-        await interaction.followup.send("done")
+        await interaction.response.send_message("Color submitted!", ephemeral=True)
 
 async def setup(client: commands.Bot):
     if client.debug:

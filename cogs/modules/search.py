@@ -203,36 +203,36 @@ class Search(commands.GroupCog, group_name="search"):
         async with self.client.connection.cursor() as cursor:
             if tags:
                 await cursor.execute(f"""
-                SELECT 
-                    colors.*, colors.upvotes - colors.downvotes AS score
-                FROM 
-                    colors
-                INNER JOIN 
-                    tags
-                ON
-                    tags.tag_name IN (?{"".join(", ?" for _ in range(len(tags.split(" ")) - 1))})
-                INNER JOIN
-                    color_tags
-                ON
-                    color_tags.submission_id = colors.submission_id
-                AND
-                    tags.tag_id = color_tags.tag_id
-                GROUP BY
-                    colors.submission_id
-                HAVING
-                    COUNT(colors.submission_id)={len(tags.split(" "))}
-                ORDER BY 
-                    """ + {"top": "score", "new": "created"}[order] + """ DESC
+                    SELECT 
+                        colors.*, colors.upvotes - colors.downvotes AS score
+                    FROM 
+                        colors
+                    INNER JOIN 
+                        tags
+                    ON
+                        tags.tag_name IN (?{"".join(", ?" for _ in range(len(tags.split(" ")) - 1))})
+                    INNER JOIN
+                        color_tags
+                    ON
+                        color_tags.submission_id = colors.submission_id
+                    AND
+                        tags.tag_id = color_tags.tag_id
+                    GROUP BY
+                        colors.submission_id
+                    HAVING
+                        COUNT(colors.submission_id)={len(tags.split(" "))}
+                    ORDER BY 
+                        """ + {"top": "score", "new": "created"}[order] + """ DESC
                 """, tags.split(" "))
 
             else:
                 await cursor.execute("""
-                SELECT
-                    *, upvotes - downvotes AS score
-                FROM 
-                    colors
-                ORDER BY
-                    """ + {"top": "score", "new": "created"}[order] + """ DESC
+                    SELECT
+                        *, upvotes - downvotes AS score
+                    FROM 
+                        colors
+                    ORDER BY
+                        """ + {"top": "score", "new": "created"}[order] + """ DESC
                 """)
 
             data = await cursor.fetchall()
@@ -241,24 +241,40 @@ class Search(commands.GroupCog, group_name="search"):
             await interaction.followup.send("No colors with such tags found.")
             return
 
+        if len(data) <= offset:
+            offset = len(data) - 1
+
         tag_list = ""
 
-        await cursor.execute("""
-        SELECT
-            tags.*
-        FROM
-            tags
-        INNER JOIN
-            
-        """)
+        async with self.client.connection.cursor() as cursor:
+            await cursor.execute("""
+                SELECT
+                    tags.*
+                FROM
+                    tags
+                INNER JOIN
+                    color_tags
+                ON
+                    color_tags.submission_id = ?
+                AND
+                    tags.tag_id = color_tags.tag_id
+            """, [data[offset][1]])
+
+            all_tags = await cursor.fetchall()
+
+        if len(all_tags):
+            tag_list = "` ".join(f"` {tag[1]} " for tag in all_tags) + "`\n\n"
+
+        ic_account = "Not linked"
 
         embed = discord.Embed(
             title=data[offset][6],
             timestamp=datetime.datetime.now(),
             color=discord.Color.from_str(hex(data[offset][2])),
-            description=tag_list + data[offset][7]
+            description= tag_list + data[offset][7]
         )
         embed.set_footer(text = f"Page {offset + 1}/{len(data)}, 👍{data[offset][3]} 👎{data[offset][4]}")
+        embed.add_field(name="Color Information", value=f"> ` Author    ` {await self.client.fetch_user(data[offset][0])}\n> ` Author IC ` {ic_account}\n> ` Submitted ` <t:{round(data[offset][5] / 1000.0)}:R>\n> ` Score     ` {data[offset][8]}")
 
         await interaction.followup.send(embed=embed, view=ColorNavigation(self.client, data, offset))
 
