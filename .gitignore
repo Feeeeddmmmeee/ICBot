@@ -1,5 +1,7 @@
 # Databases
-*.sqlite
+*.db
+*.db-shm
+*.db-wal
 
 # VS Code
 .vscode/
@@ -121,4 +123,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-token.env
+*.env

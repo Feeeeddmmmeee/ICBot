@@ -1,214 +1,114 @@
-import discord, os, intersection, asyncio
-from discord.ext import commands, tasks
+import discord
+from discord.ext import commands
+
+from typing import Optional
+from colorlog import ColoredFormatter
 from dotenv import load_dotenv
-from libs import asqlite
+import logging
+import os
+import asyncio
+import aiosqlite
+import aiohttp
 
-DEBUG = False
-if __file__ == r"c:\Users\HP\Desktop\vs-code\ICBot Rewrite\main.py":
-    DEBUG = True
+import tl3api
 
-intents = discord.Intents.all()
+# getting the default discord logger
+logger = logging.getLogger("discord")
 
-load_dotenv(dotenv_path = "./config/token.env")
-TOKEN = os.getenv('TOKEN')  
+# getting environment variables
+load_dotenv(dotenv_path = r"./config/config.env")
+TOKEN = os.getenv("TOKEN") 
+DEBUG = bool(os.getenv("DEBUG"))
 
-client = commands.Bot(command_prefix = ['ic ', 'IC ', 'Ic ', 'iC '], intents = intents, allowed_mentions=discord.AllowedMentions(everyone=False), help_command=None)
+# creating the client
+class MyClient(commands.Bot):
+    debug: bool
+    connection: Optional[aiosqlite.Connection]
+    session: aiohttp.ClientSession
+    ic: tl3api.Client
 
-client.owner_id = 585115156757872653
-guild_id = 469861886960205824 # test = 744653826799435806 # ic = 469861886960205824
+    def __init__(self, debug, *args, **kwargs):
+        self.connection = None
+        self.debug = debug
+        super().__init__(*args, **kwargs)
 
-if DEBUG: 
-    guild_id = 744653826799435806 
+    async def setup_hook(self):
+        self.owner_id = 585115156757872653
+        self.connection = await aiosqlite.connect("database.db")
+        logger.info("Established connection to database")
 
-@client.before_invoke
-async def typing(ctx: commands.Context):
-    if not ctx.command.name in ['verify', 'suggest']:
-        await ctx.trigger_typing()
+        self.session = aiohttp.ClientSession()
+        self.ic = tl3api.Client(self.session)
+        logger.info("Initialized the IC API client")
 
-def roles(member: discord.Member, followers, guild: discord.Guild):
-    less = discord.utils.get(guild.roles,name="Newbie (Below 10 Followers)")
-    f10 = discord.utils.get(guild.roles,name="10+ Followers")
-    f50 = discord.utils.get(guild.roles,name="50+ Followers")
-    f100 = discord.utils.get(guild.roles,name="100+ Followers")
-    f200 = discord.utils.get(guild.roles,name="200+ Followers")
-    f500 = discord.utils.get(guild.roles,name="500+ Followers")
-    f1000 = discord.utils.get(guild.roles,name="1000+ Followers")
+    async def close(self):
+        await self.connection.close()
+        await self.ic.close()
+        return await super().close()
 
-    member_roles = member.roles
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+client = MyClient(DEBUG, command_prefix = commands.when_mentioned_or(""), help_command = None, intents = intents)
 
-    return_var = []
-    temp_add = []
-    temp_remove = []
-
-    if followers != None:
-        if followers > 1000:
-            if less in member_roles:
-                temp_remove.append(less)
-            if f10 in member_roles:
-                temp_remove.append(f10)
-            if f50 in member_roles:
-                temp_remove.append(f50)
-            if f100 in member_roles:
-                temp_remove.append(f100)
-            if f200 in member_roles:
-                temp_remove.append(f200)
-            if f500 in member_roles:
-                temp_remove.append(f500)
-            if not f1000 in member_roles:
-                temp_add.append(f1000)
-
-        elif followers > 500:
-            if less in member_roles:
-                temp_remove.append(less)
-            if f10 in member_roles:
-                temp_remove.append(f10)
-            if f50 in member_roles:
-                temp_remove.append(f50)
-            if f100 in member_roles:
-                temp_remove.append(f100)
-            if f200 in member_roles:
-                temp_remove.append(f200)
-            if not f500 in member_roles:
-                temp_add.append(f500)
-            if f1000 in member_roles:
-                temp_remove.append(f1000)
-
-        elif followers > 200:
-            if less in member_roles:
-                temp_remove.append(less)
-            if f10 in member_roles:
-                temp_remove.append(f10)
-            if f50 in member_roles:
-                temp_remove.append(f50)
-            if f100 in member_roles:
-                temp_remove.append(f100)
-            if not f200 in member_roles:
-                temp_add.append(f200)
-            if f500 in member_roles:
-                temp_remove.append(f500)
-            if f1000 in member_roles:
-                temp_remove.append(f1000)
-
-        elif followers > 100:
-            if less in member_roles:
-                temp_remove.append(less)
-            if f10 in member_roles:
-                temp_remove.append(f10)
-            if f50 in member_roles:
-                temp_remove.append(f50)
-            if not f100 in member_roles:
-                temp_add.append(f100)
-            if f200 in member_roles:
-                temp_remove.append(f200)
-            if f500 in member_roles:
-                temp_remove.append(f500)
-            if f1000 in member_roles:
-                temp_remove.append(f1000)
-
-        elif followers > 50:
-            if less in member_roles:
-                temp_remove.append(less)
-            if f10 in member_roles:
-                temp_remove.append(f10)
-            if not f50 in member_roles:
-                temp_add.append(f50)
-            if f100 in member_roles:
-                temp_remove.append(f100)
-            if f200 in member_roles:
-                temp_remove.append(f200)
-            if f500 in member_roles:
-                temp_remove.append(f500)
-            if f1000 in member_roles:
-                temp_remove.append(f1000)
-
-        elif followers > 10:
-            if less in member_roles:
-                temp_remove.append(less)
-            if not f10 in member_roles:
-                temp_add.append(f10)
-            if f50 in member_roles:
-                temp_remove.append(f50)
-            if f100 in member_roles:
-                temp_remove.append(f100)
-            if f200 in member_roles:
-                temp_remove.append(f200)
-            if f500 in member_roles:
-                temp_remove.append(f500)
-            if f1000 in member_roles:
-                temp_remove.append(f1000)
-
-        else:
-            if not less in member_roles:
-                temp_add.append(less)
-            if f10 in member_roles:
-                temp_remove.append(f10)
-            if f50 in member_roles:
-                temp_remove.append(f50)
-            if f100 in member_roles:
-                temp_remove.append(f100)
-            if f200 in member_roles:
-                temp_remove.append(f200)
-            if f500 in member_roles:
-                temp_remove.append(f500)
-            if f1000 in member_roles:
-                temp_remove.append(f1000)
-
+@client.command(aliases = ["s"])
+@commands.is_owner()
+async def sync(ctx: commands.Context):
+    if client.debug:
+        fmt = await ctx.bot.tree.sync(guild=ctx.guild)
+        await ctx.send(f"{len(fmt)} commands synced locally!")
     else:
-        if less in member_roles:
-            temp_remove.append(less)
-        if f10 in member_roles:
-            temp_remove.append(f10)
-        if f50 in member_roles:
-            temp_remove.append(f50)
-        if f100 in member_roles:
-            temp_remove.append(f100)
-        if f200 in member_roles:
-            temp_remove.append(f200)
-        if f500 in member_roles:
-            temp_remove.append(f500)
-        if f1000 in member_roles:
-            temp_remove.append(f1000)
-    
-    return_var.append(temp_add)
-    return_var.append(temp_remove)
+        fmt = await ctx.bot.tree.sync()
+        await ctx.send(f"{len(fmt)} commands synced globally!")
 
-    return return_var
+@client.command(aliases = ["r"])
+@commands.is_owner()
+async def refresh(ctx: commands.Context):
+    loaded, unloaded = 0, 0
+    for dir in os.listdir("./cogs"):
+        for filename in os.listdir(f"./cogs/{dir}"):
+            if filename.endswith(".py"):
+                try:
+                    await client.unload_extension(f"cogs.{dir}.{filename[:-3]}")
+                    logger.debug(f"Unloaded cogs.{dir}.{filename[:-3]}")
+                    unloaded += 1
+                except:
+                    logger.warning(f"Failed to unload extension cogs.{dir}.{filename[:-3]}")
+                await client.load_extension(f"cogs.{dir}.{filename[:-3]}")
+                logger.debug(f"Loaded cogs.{dir}.{filename[:-3]}")
+                loaded += 1
 
-async def update_follower_roles(member: discord.Member, guild: discord.Guild):
-    async with asqlite.connect("database.sqlite") as conn:
-        async with conn.cursor() as cursor:
+    logger.info(f"{unloaded} extensions unloaded, {loaded} extensions loaded ({loaded - unloaded} new)")
+    await ctx.send(f"{unloaded} extensions unloaded, {loaded} extensions loaded ({loaded - unloaded} new)")
 
-            await cursor.execute(f'SELECT ic_id FROM accounts WHERE discord_id = {member.id}')
-            id = await cursor.fetchone()
-            
-    if id:
-        ic_user_object = intersection.user.get_details_for_user(userId=id[0])
-        followers = ic_user_object.followers
+async def main():
+    # setting up a custom logger
+    date_format = "%Y-%m-%d %H:%M:%S"
 
-        await member.add_roles(*roles(member, followers, guild)[0], reason = "Updating follower roles.")
-        await member.remove_roles(*roles(member, followers, guild)[1], reason = "Updating follower roles.")
-        
+    if client.debug: 
+        logger.setLevel(logging.DEBUG)
     else: 
-        await member.add_roles(*roles(member, None, guild)[0], reason = "Updating follower roles.")
-        await member.remove_roles(*roles(member, None, guild)[1], reason = "Updating follower roles.")
+        logger.setLevel(logging.INFO)
 
-@tasks.loop(minutes=1)
-async def follower_roles():
-    guild = client.get_guild(guild_id)
-    task = []
+    logger.setLevel(logging.INFO)
 
-    for member in guild.members: 
-        task.append(asyncio.create_task(update_follower_roles(member, guild)))
+    handler = logging.StreamHandler()
+    formatter = ColoredFormatter("{log_color}[{asctime}] [{levelname}] {name}: {message}", datefmt = date_format, style = "{", log_colors={"INFO": "blue", "WARNING": "yellow", "ERROR": "red", "CRITICAL": "red"})
 
-    for future in task:
-        await future
+    #handler = logging.FileHandler(filename = "discord.log", encoding = "utf-8", mode = "w")
+    #formatter = logging.Formatter("[{asctime}] [{levelname}] {name}: {message}", datefmt = date_format, style = "{")
 
-for filename in os.listdir('./commands'):
-    if filename.endswith('.py'):
-        client.load_extension(f'commands.{filename[:-3]}')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
-for filename in os.listdir('./events'):
-    if filename.endswith('.py'):
-        client.load_extension(f'events.{filename[:-3]}')
+    # loading commands
+    for dir in os.listdir("./cogs"):
+        for filename in os.listdir(f"./cogs/{dir}"):
+            if(filename.endswith(".py")):
+                await client.load_extension(f"cogs.{dir}.{filename[:-3]}")
+                logger.debug(f"Loaded cogs.{dir}.{filename[:-3]}")
 
-client.run(TOKEN)
+    await client.start(TOKEN)
+
+if __name__ == "__main__":
+    asyncio.run(main())
