@@ -20,8 +20,7 @@ CREATE TABLE IF NOT EXISTS colors (
     upvotes INTEGER NOT NULL DEFAULT 1, 
     downvotes INTEGER NOT NULL DEFAULT 0, 
     created INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    description TEXT NOT NULL
+    name TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS tags (

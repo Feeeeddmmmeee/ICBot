@@ -49,7 +49,7 @@ class Navigation(discord.ui.View):
         embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/1046064114558062683/help.png")
         embed.set_footer(text = f"Page {self.index + 1}/{ic_account.maps}, 👍{map.votes_up} 👎{map.votes_down} ❤️{map.favorites}")
 
-        await interaction.response.edit_message(embed=embed, view=Navigation(self.client, self.user, self.index))
+        await interaction.response.edit_message(embed=embed, view=self)
 
     @discord.ui.button(emoji="<:last:1046448014564266146>", style=discord.ButtonStyle.grey)
     async def first(self, interaction: discord.Interaction, button: discord.ui.Button):

@@ -4,7 +4,6 @@ from discord import app_commands
 
 from main import logger, MyClient
 import datetime
-import tl3api
 
 class Navigation(discord.ui.View):
     def __init__(self, client: MyClient, list, index = 0, *, timeout = 120):
@@ -30,17 +29,71 @@ class Navigation(discord.ui.View):
     @discord.ui.button(emoji="<:arrowR:1046384022726656040>", style=discord.ButtonStyle.grey)
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.index += 1
-        if self.index > 99: self.index = 99
+        if self.index >= len(self.list): self.index = len(self.list) - 1
         await self.update_embed(interaction)
 
     @discord.ui.button(emoji="<:first:1046447978824613918>", style=discord.ButtonStyle.grey)
     async def last(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.index = 99
+        self.index = len(self.list) - 1
         await self.update_embed(interaction)
 
 class ColorNavigation(Navigation):
-    async def update_embed(self, interaction: discord.Interaction):
+
+    @discord.ui.button(emoji="👍", style=discord.ButtonStyle.grey, row=1)
+    async def upvote(self, interaction: discord.Interaction, button: discord.ui.Button):
         pass
+
+    @discord.ui.button(emoji="👎", style=discord.ButtonStyle.grey, row=1)
+    async def downvote(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+    async def update_embed(self, interaction: discord.Interaction):
+        tag_list = ""
+        ic_account = "Not linked"
+
+        async with self.client.connection.cursor() as cursor:
+            await cursor.execute("""
+                SELECT
+                    tags.*
+                FROM
+                    tags
+                INNER JOIN
+                    color_tags
+                ON
+                    color_tags.submission_id = ?
+                AND
+                    tags.tag_id = color_tags.tag_id
+            """, [self.list[self.index][1]])
+
+            all_tags = await cursor.fetchall()
+
+            await cursor.execute("""
+                SELECT 
+                    ic_id
+                FROM 
+                    accounts
+                WHERE
+                    discord_id = ?
+            """, [self.list[self.index][0]])
+
+            ic = await cursor.fetchone()
+
+        if len(all_tags):
+            tag_list = "` ".join(f"` {tag[1]} " for tag in all_tags) + "`\n\n"
+
+        if len(ic):
+            ic_account = await self.client.ic.get_details_for_user(user_id=ic[0])
+
+        embed = discord.Embed(
+            title=self.list[self.index][6] + " - " + hex(self.list[self.index][2]).replace("0x", "#"),
+            timestamp=datetime.datetime.now(),
+            color=discord.Color.from_str(hex(self.list[self.index][2])),
+            description= f"tags: {tag_list}"
+        )
+        embed.set_footer(text = f"Page {self.index + 1}/{len(self.list)}, 👍{self.list[self.index][3]} 👎{self.list[self.index][4]}")
+        embed.add_field(name="Color Information", value=f"> ` Author    ` {await self.client.fetch_user(self.list[self.index][0])}\n> ` Author IC ` {ic_account}\n> ` Submitted ` <t:{round(self.list[self.index][5] / 1000.0)}:R>\n> ` Score     ` {self.list[self.index][7]}")
+
+        await interaction.response.edit_message(embed=embed, view=self)
 
 class MapNavigation(Navigation):
     async def update_embed(self, interaction: discord.Interaction):
@@ -72,7 +125,7 @@ class MapNavigation(Navigation):
         embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/1046064114558062683/help.png")
         embed.set_footer(text = f"Page {self.index + 1}/{len(self.list)}, 👍{map.votes_up} 👎{map.votes_down} ❤️{map.favorites}")
 
-        await interaction.followup.edit_message(interaction.message.id, embed=embed, view=MapNavigation(self.client, self.list, self.index))
+        await interaction.followup.edit_message(interaction.message.id, embed=embed, view=self)
 
 class UserNavigation(Navigation):
     async def update_embed(self, interaction: discord.Interaction):
@@ -101,7 +154,7 @@ class UserNavigation(Navigation):
             embed.set_author(name=user)
             embed.description += f"\n> ` Linked     ` Not linked\n> ` Maps       ` {user.maps}"
 
-        await interaction.followup.edit_message(interaction.message.id, embed=embed, view=UserNavigation(self.client, self.list, self.index))
+        await interaction.followup.edit_message(interaction.message.id, embed=embed, view=self)
 
 class Search(commands.GroupCog, group_name="search"):
 
@@ -245,6 +298,7 @@ class Search(commands.GroupCog, group_name="search"):
             offset = len(data) - 1
 
         tag_list = ""
+        ic_account = "Not linked"
 
         async with self.client.connection.cursor() as cursor:
             await cursor.execute("""
@@ -262,19 +316,31 @@ class Search(commands.GroupCog, group_name="search"):
 
             all_tags = await cursor.fetchall()
 
+            await cursor.execute("""
+                SELECT 
+                    ic_id
+                FROM 
+                    accounts
+                WHERE
+                    discord_id = ?
+            """, [data[offset][0]])
+
+            ic = await cursor.fetchone()
+
         if len(all_tags):
             tag_list = "` ".join(f"` {tag[1]} " for tag in all_tags) + "`\n\n"
 
-        ic_account = "Not linked"
+        if len(ic):
+            ic_account = await self.client.ic.get_details_for_user(user_id=ic[0])
 
         embed = discord.Embed(
-            title=data[offset][6],
+            title=data[offset][6] + " - " + hex(data[offset][2]).replace("0x", "#"),
             timestamp=datetime.datetime.now(),
             color=discord.Color.from_str(hex(data[offset][2])),
-            description= tag_list + data[offset][7]
+            description = f"tags: {tag_list}"
         )
         embed.set_footer(text = f"Page {offset + 1}/{len(data)}, 👍{data[offset][3]} 👎{data[offset][4]}")
-        embed.add_field(name="Color Information", value=f"> ` Author    ` {await self.client.fetch_user(data[offset][0])}\n> ` Author IC ` {ic_account}\n> ` Submitted ` <t:{round(data[offset][5] / 1000.0)}:R>\n> ` Score     ` {data[offset][8]}")
+        embed.add_field(name="Color Information", value=f"> ` Author    ` {await self.client.fetch_user(data[offset][0])}\n> ` Author IC ` {ic_account}\n> ` Submitted ` <t:{round(data[offset][5] / 1000.0)}:R>\n> ` Score     ` {data[offset][7]}")
 
         await interaction.followup.send(embed=embed, view=ColorNavigation(self.client, data, offset))
 

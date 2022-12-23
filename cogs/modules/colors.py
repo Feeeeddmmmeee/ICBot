@@ -14,15 +14,17 @@ class Colors(commands.Cog):
         self.client = client
 
     @app_commands.command(name="submit", description="Submit a color to the hex database.")
-    @app_commands.describe(color = "The hex code of your color submission.")
-    @app_commands.describe(tags="A list of tags you want to add to your color. (Separated by spaces, no more than 10 tags can be added, only lowercase letters, numbers and underscores are allowed)")
-    async def submit(self, interaction: discord.Interaction, color: str, name: str, description: str, tags: Optional[str] = None):
-        color = color.replace("#", "").replace("0x", "")
+    @app_commands.describe(hex = "The hex code of your color submission.",
+        name="A short name that describes your color.",
+        tags="A list of tags you want to add to your color. (Separated by spaces, no more than 10 tags can be added, only lowercase letters, numbers and underscores are allowed)"
+    )
+    async def submit(self, interaction: discord.Interaction, name: str, hex: str, tags: Optional[str] = None):
+        hex = hex.replace("#", "").replace("0x", "")
         if tags: tags = tags.split(" ")
 
         async with self.client.connection.cursor() as cursor:
-            await cursor.execute("INSERT INTO colors (user_id, color, created, name, description) VALUES(?, ?, ?, ?, ?)", 
-                [interaction.user.id, int(color, 16), round(time.time() * 1000), name, description])
+            await cursor.execute("INSERT INTO colors (user_id, color, created, name) VALUES(?, ?, ?, ?)", 
+                [interaction.user.id, int(hex, 16), round(time.time() * 1000), name])
 
             submission_id = cursor.lastrowid
             await cursor.execute("INSERT INTO color_votes (user_id, submission_id, vote) VALUES(?, ?, ?)", 
