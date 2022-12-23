@@ -187,17 +187,51 @@ class Search(commands.GroupCog, group_name="search"):
 
     @app_commands.command(name="colors", description="Search for colors in the hex color database.")
     @app_commands.choices(order = [
-        app_commands.Choice(name="Top", value="1"),
-        app_commands.Choice(name="New", value="2")
+        app_commands.Choice(name="Top", value="top"),
+        app_commands.Choice(name="New", value="new")
     ])
     @app_commands.describe(order="In what order to return the search results.", tags="Tags to search for (separated by spaces)")
     async def colors(self, interaction: discord.Interaction, order: str, tags: str = None):
         await interaction.response.defer()
         
-        if order == "1":
-            pass
-        else:
-            pass
+        async with self.client.connection.cursor() as cursor:
+            if tags:
+                await cursor.execute(f"""
+                SELECT 
+                    colors.*, colors.upvotes - colors.downvotes AS score
+                FROM 
+                    colors
+                INNER JOIN 
+                    tags
+                ON
+                    tags.tag_name IN (?{"".join(", ?" for _ in range(len(tags.split(" ")) - 1))})
+                INNER JOIN
+                    color_tags
+                ON
+                    color_tags.submission_id = colors.submission_id
+                AND
+                    tags.tag_id = color_tags.tag_id
+                GROUP BY
+                    colors.submission_id
+                HAVING
+                    COUNT(colors.submission_id)={len(tags.split(" "))}
+                ORDER BY 
+                    """ + {"top": "score", "new": "created"}[order] + """ DESC
+                """, tags.split(" "))
+
+            else:
+                await cursor.execute("""
+                SELECT
+                    *, upvotes - downvotes AS score
+                FROM 
+                    colors
+                ORDER BY
+                    """ + {"top": "score", "new": "created"}[order] + """ DESC
+                """)
+
+            data = await cursor.fetchall()
+
+        await interaction.followup.send(data)
 
 async def setup(client: commands.Bot):
     if client.debug:

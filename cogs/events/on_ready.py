@@ -36,7 +36,7 @@ class OnReady(commands.Cog):
                 submission_id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 color INTEGER, 
                 upvotes INTEGER DEFAULT 1, 
-                dowvotes INTEGER DEFAULT 0, 
+                downvotes INTEGER DEFAULT 0, 
                 created INTEGER)""")
             
             await cursor.execute("""CREATE TABLE IF NOT EXISTS tags (
@@ -51,7 +51,7 @@ class OnReady(commands.Cog):
                 user_id INTEGER, 
                 submission_id INTEGER, 
                 vote INTEGER)""")
-                
+
             await insert_guilds(cursor, 744653826799435806, 469861886960205824)
 
             await self.client.connection.commit()
