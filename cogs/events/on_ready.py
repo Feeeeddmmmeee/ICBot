@@ -19,9 +19,6 @@ class OnReady(commands.Cog):
     async def on_ready(self):
         logger.info(f"Logged in as {self.client.user}")
 
-        with open("schema.sql") as schema:
-            await self.client.connection.executescript(schema.read())
-
         async with self.client.connection.cursor() as cursor:
             await insert_guilds(cursor, 744653826799435806, 469861886960205824)
 

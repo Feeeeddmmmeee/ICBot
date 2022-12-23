@@ -37,6 +37,10 @@ class MyClient(commands.Bot):
         self.connection = await aiosqlite.connect("database.db")
         logger.info("Established connection to database")
 
+        with open("schema.sql") as schema:
+            await self.connection.executescript(schema.read())
+        logger.info("Ran schema.sql")
+
         self.session = aiohttp.ClientSession()
         self.ic = tl3api.Client(self.session)
         logger.info("Initialized the IC API client")
