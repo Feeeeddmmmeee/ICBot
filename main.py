@@ -115,4 +115,7 @@ async def main():
     await client.start(TOKEN)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.get_event_loop().run_until_complete(main())
+    except KeyboardInterrupt:
+        asyncio.run(client.close())
