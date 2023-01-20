@@ -252,7 +252,6 @@ class Search(commands.GroupCog, group_name="search"):
         offset="Which index to start the search at (defaults to 0)."
     )
     async def colors(self, interaction: discord.Interaction, order: str, tags: str = None, offset: int = 0):
-        await interaction.response.defer()
         async with self.client.connection.cursor() as cursor:
             if tags:
                 await cursor.execute(f"""
@@ -291,7 +290,7 @@ class Search(commands.GroupCog, group_name="search"):
             data = await cursor.fetchall()
 
         if not data:
-            await interaction.followup.send("No colors with such tags found.")
+            await interaction.response.send_message("No colors with such tags found.", ephemeral=True)
             return
 
         if len(data) <= offset:
@@ -336,13 +335,13 @@ class Search(commands.GroupCog, group_name="search"):
         embed = discord.Embed(
             title=data[offset][6] + " - " + hex(data[offset][2]).replace("0x", "#"),
             timestamp=datetime.datetime.now(),
-            color=discord.Color.from_str(hex(data[offset][2])),
+            color=discord.Color.orange(),#discord.Color.from_str(hex(data[offset][2])),
             description = f"tags: {tag_list}"
         )
         embed.set_footer(text = f"Page {offset + 1}/{len(data)}, 👍{data[offset][3]} 👎{data[offset][4]}")
         embed.add_field(name="Color Information", value=f"> ` Author    ` {await self.client.fetch_user(data[offset][0])}\n> ` Author IC ` {ic_account}\n> ` Submitted ` <t:{round(data[offset][5] / 1000.0)}:R>\n> ` Score     ` {data[offset][7]}")
 
-        await interaction.followup.send(embed=embed, view=ColorNavigation(self.client, data, offset))
+        await interaction.response.send_message(embed=embed, view=ColorNavigation(self.client, data, offset))
 
 async def setup(client: commands.Bot):
     if client.debug:

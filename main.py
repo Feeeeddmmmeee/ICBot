@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 
-from typing import Optional
 from colorlog import ColoredFormatter
 from dotenv import load_dotenv
 import logging
@@ -23,12 +22,11 @@ DEBUG = bool(os.getenv("DEBUG"))
 # creating the client
 class MyClient(commands.Bot):
     debug: bool
-    connection: Optional[aiosqlite.Connection]
+    connection: aiosqlite.Connection
     session: aiohttp.ClientSession
     ic: tl3api.Client
 
     def __init__(self, debug, *args, **kwargs):
-        self.connection = None
         self.debug = debug
         super().__init__(*args, **kwargs)
 
@@ -39,6 +37,7 @@ class MyClient(commands.Bot):
 
         with open("schema.sql") as schema:
             await self.connection.executescript(schema.read())
+
         logger.info("Ran schema.sql")
 
         self.session = aiohttp.ClientSession()
