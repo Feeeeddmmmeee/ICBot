@@ -5,7 +5,7 @@ from discord import app_commands
 
 from main import logger, MyClient
 import datetime
-from PIL import ImageColor, Image
+from PIL import Image
 
 class Navigation(discord.ui.View):
     def __init__(self, client: MyClient, list, index = 0, *, timeout = 120):
