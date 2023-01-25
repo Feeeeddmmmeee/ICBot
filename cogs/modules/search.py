@@ -420,7 +420,7 @@ class Search(commands.GroupCog, group_name="search"):
         if len(all_tags):
             tag_list = "` ".join(f"` {tag[1]} " for tag in all_tags) + "`\n\n"
 
-        if len(ic):
+        if ic:
             ic_account = await self.client.ic.get_details_for_user(user_id=ic[0])
 
         embed = discord.Embed(
