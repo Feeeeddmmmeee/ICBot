@@ -87,7 +87,7 @@ class ColorNavigation(Navigation):
         embed = discord.Embed(
             title=self.list[self.index][6] + " - " + hex(self.list[self.index][2]).replace("0x", "#"),
             timestamp=datetime.datetime.now(),
-            color=discord.Color.from_str(hex(self.list[self.index][2])),
+            color=discord.Color.orange(),#discord.Color.from_str(hex(self.list[self.index][2])),
             description= f"tags: {tag_list}"
         )
         embed.set_footer(text = f"Page {self.index + 1}/{len(self.list)}, 👍{self.list[self.index][3]} 👎{self.list[self.index][4]}")
