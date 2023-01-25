@@ -43,11 +43,85 @@ class ColorNavigation(Navigation):
 
     @discord.ui.button(emoji="👍", style=discord.ButtonStyle.grey, row=1)
     async def upvote(self, interaction: discord.Interaction, button: discord.ui.Button):
-        pass
+        await self.vote(interaction, 1)
 
     @discord.ui.button(emoji="👎", style=discord.ButtonStyle.grey, row=1)
     async def downvote(self, interaction: discord.Interaction, button: discord.ui.Button):
-        pass
+        await self.vote(interaction, -1)
+
+    async def vote(self, interaction: discord.Interaction, vote: int):
+        vote_type = "upvotes" if vote > 0 else "downvotes"
+        async with self.client.connection.cursor() as cursor:
+            await cursor.execute("""
+                SELECT
+                    vote
+                FROM
+                    color_votes
+                WHERE
+                    submission_id = ?
+                AND
+                    user_id = ?
+            """, [self.list[self.index][1], interaction.user.id])
+            data = await cursor.fetchone()
+
+            if data:
+                await cursor.execute("""
+                    UPDATE
+                        color_votes
+                    SET
+                        vote = ?
+                    WHERE
+                        submission_id = ?
+                    AND 
+                        user_id = ?
+                """, [vote, self.list[self.index][1], interaction.user.id])
+
+                if data[0] != vote:
+                    previous_vote = ["upvotes", "downvotes"][1 if vote > 0 else 0]
+                    await cursor.execute(f"""
+                        UPDATE
+                            colors
+                        SET
+                            {vote_type} = {vote_type} + 1,
+                            {previous_vote} = {previous_vote} - 1
+                        WHERE
+                            submission_id = ?
+                    """, [self.list[self.index][1]])
+
+            else:
+                await cursor.execute("""
+                    INSERT INTO
+                        color_votes (user_id, submission_id, vote)
+                    VALUES
+                        (?, ?, ?)
+
+                """, [interaction.user.id, self.list[self.index][1]], vote)
+
+                await cursor.execute(f"""
+                    UPDATE
+                        colors
+                    SET
+                        {vote_type} = {vote_type} + 1
+                    WHERE
+                        submission_id = ?
+                """, [self.list[self.index][1]])
+            
+            new_list = []
+            for object in self.list:
+                await cursor.execute("""
+                    SELECT
+                        colors.*, colors.upvotes - colors.downvotes AS score
+                    FROM
+                        colors
+                    WHERE
+                        colors.submission_id = ?
+                """, [object[1]])
+                new_object = await cursor.fetchone()
+                new_list.append(new_object)
+
+            self.list = new_list
+
+        await self.update_embed(interaction)
 
     async def update_embed(self, interaction: discord.Interaction):
         tag_list = ""
