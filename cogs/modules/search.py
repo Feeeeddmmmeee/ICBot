@@ -1,9 +1,11 @@
+from io import BytesIO
 import discord
 from discord.ext import commands
 from discord import app_commands
 
 from main import logger, MyClient
 import datetime
+from PIL import ImageColor, Image
 
 class Navigation(discord.ui.View):
     def __init__(self, client: MyClient, list, index = 0, *, timeout = 120):
@@ -93,7 +95,22 @@ class ColorNavigation(Navigation):
         embed.set_footer(text = f"Page {self.index + 1}/{len(self.list)}, 👍{self.list[self.index][3]} 👎{self.list[self.index][4]}")
         embed.add_field(name="Color Information", value=f"> ` Author    ` {await self.client.fetch_user(self.list[self.index][0])}\n> ` Author IC ` {ic_account}\n> ` Submitted ` <t:{round(self.list[self.index][5] / 1000.0)}:R>\n> ` Score     ` {self.list[self.index][7]}")
 
-        await interaction.response.edit_message(embed=embed, view=self)
+        # 201x1200
+        RGBint = self.list[self.index][2]
+
+        # int to rgb tuple conversion
+        color =  ((RGBint >> 16) & 255, (RGBint >> 8) & 255, RGBint & 255)
+
+        img = Image.new('RGB', (1200, 200), color)
+        
+        fp = BytesIO()
+        img.save(fp, "PNG")
+        fp.seek(0)
+
+        file = discord.File(fp, filename="color.png")
+        embed.set_image(url="attachment://color.png")
+
+        await interaction.response.edit_message(embed=embed, attachments=[file], view=self)
 
 class MapNavigation(Navigation):
     async def update_embed(self, interaction: discord.Interaction):
@@ -341,7 +358,21 @@ class Search(commands.GroupCog, group_name="search"):
         embed.set_footer(text = f"Page {offset + 1}/{len(data)}, 👍{data[offset][3]} 👎{data[offset][4]}")
         embed.add_field(name="Color Information", value=f"> ` Author    ` {await self.client.fetch_user(data[offset][0])}\n> ` Author IC ` {ic_account}\n> ` Submitted ` <t:{round(data[offset][5] / 1000.0)}:R>\n> ` Score     ` {data[offset][7]}")
 
-        await interaction.response.send_message(embed=embed, view=ColorNavigation(self.client, data, offset))
+        RGBint = data[offset][2]
+
+        # int to rgb tuple conversion
+        color =  ((RGBint >> 16) & 255, (RGBint >> 8) & 255, RGBint & 255)
+
+        img = Image.new('RGB', (1200, 200), color)
+        
+        fp = BytesIO()
+        img.save(fp, "PNG")
+        fp.seek(0)
+
+        file = discord.File(fp, filename="color.png")
+        embed.set_image(url="attachment://color.png")
+
+        await interaction.response.send_message(embed=embed, file=file, view=ColorNavigation(self.client, data, offset))
 
 async def setup(client: commands.Bot):
     if client.debug:
