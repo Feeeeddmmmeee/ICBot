@@ -95,7 +95,7 @@ class ColorNavigation(Navigation):
                     VALUES
                         (?, ?, ?)
 
-                """, [interaction.user.id, self.list[self.index][1]], vote)
+                """, [interaction.user.id, self.list[self.index][1], vote])
 
                 await cursor.execute(f"""
                     UPDATE
@@ -340,10 +340,12 @@ class Search(commands.GroupCog, group_name="search"):
     ])
     @app_commands.describe(order="In what order to return the search results.", 
         tags="Tags to search for (separated by spaces).",
-        offset="Which index to start the search at (defaults to 0)."
+        offset="Which index to start the search at (defaults to 0).",
+        user="The user whose colors to search for."
     )
-    async def colors(self, interaction: discord.Interaction, order: str, tags: str = None, offset: int = 0):
+    async def colors(self, interaction: discord.Interaction, order: str, tags: str = None, user: discord.User = None, offset: int = 0):
         async with self.client.connection.cursor() as cursor:
+            user_query = "" if not user else f"AND colors.user_id = {user.id}"
             if tags:
                 await cursor.execute(f"""
                     SELECT 
@@ -360,6 +362,7 @@ class Search(commands.GroupCog, group_name="search"):
                         color_tags.submission_id = colors.submission_id
                     AND
                         tags.tag_id = color_tags.tag_id
+                    {user_query}
                     GROUP BY
                         colors.submission_id
                     HAVING
@@ -369,11 +372,12 @@ class Search(commands.GroupCog, group_name="search"):
                 """, tags.split(" "))
 
             else:
-                await cursor.execute("""
+                await cursor.execute(f"""
                     SELECT
                         *, upvotes - downvotes AS score
                     FROM 
                         colors
+                    {user_query.replace("AND", "WHERE")}
                     ORDER BY
                         """ + {"top": "score", "new": "created"}[order] + """ DESC
                 """)
@@ -381,7 +385,7 @@ class Search(commands.GroupCog, group_name="search"):
             data = await cursor.fetchall()
 
         if not data:
-            await interaction.response.send_message("No colors with such tags found.", ephemeral=True)
+            await interaction.response.send_message("No such color found.", ephemeral=True)
             return
 
         if len(data) <= offset:

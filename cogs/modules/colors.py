@@ -15,10 +15,13 @@ class Colors(commands.Cog):
 
     @app_commands.command(name="submit", description="Submit a color to the hex database.")
     @app_commands.describe(hex = "The hex code of your color submission.",
-        name="A short name that describes your color.",
-        tags="A list of tags you want to add to your color. (Separated by spaces, no more than 10 tags can be added, only lowercase letters, numbers and underscores are allowed)"
+        name="A short (consisting of less than 128 characters) name that describes your colorname.",
+        tags="A list of tags you want to add to your color. (Separated by spaces, no more than 10 tags can be added, only letters, numbers and underscores are allowed)"
     )
     async def submit(self, interaction: discord.Interaction, name: str, hex: str, tags: Optional[str] = None):
+        if len(name) > 128:
+            name = name[0:128]
+
         hex = hex.replace("#", "").replace("0x", "")
         if tags: tags = tags.split(" ")
 
@@ -36,7 +39,7 @@ class Colors(commands.Cog):
 
                 for tag in tags:
                     tag = tag.lower()
-                    if not bool(re.match("^[a-z0-9_]*$", tag)):
+                    if not bool(re.match("^[A-Za-z0-9_]*$", tag)):
                         continue
 
                     await cursor.execute("SELECT tag_id FROM tags WHERE tag_name = ?", [tag])
