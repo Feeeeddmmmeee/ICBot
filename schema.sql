@@ -1,8 +1,3 @@
-DROP TABLE IF EXISTS color_tags;
-DROP TABLE IF EXISTS colors;
-DROP TABLE IF EXISTS tags;
-DROP TABLE IF EXISTS color_votes;
-
 CREATE TABLE IF NOT EXISTS accounts (
     discord_id INTEGER NOT NULL, 
     ic_id INTEGER NOT NULL, 

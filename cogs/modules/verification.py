@@ -22,7 +22,7 @@ async def verify(user: tl3api.User, interaction: discord.Interaction, client: co
         map = (await user.get_user_maps())[0]
         embed = discord.Embed(
             color=discord.Color.orange(),
-            description=f"In order to prove you actually own the selected account you will be required to post a comment on your most recently uploaded map - **{map}**. The comment must only contain the 4-digit code sent in my next message. Once you're done your account will be linked."
+            description=f"In order to prove you actually own the selected account you will be required to post a comment on your most recently uploaded map - **{map}**. The comment must only contain the 4-character code sent in my next message. Once you're done your account will be linked."
         )
         embed.set_author(name=f"Account Verification - {user}", icon_url=client.user.display_avatar.url)
 
@@ -72,7 +72,7 @@ async def verify(user: tl3api.User, interaction: discord.Interaction, client: co
     else:
         embed = discord.Embed(
             color=discord.Color.orange(),
-            description=f"In order to prove you actually own the selected account you will be required to upload a new map on your account. The map name must only contain the 4-digit code sent in my next message. Once you're done your account will be linked."
+            description=f"In order to prove you actually own the selected account you will be required to upload a new map on your account. The map name must only contain the 4-character code sent in my next message. Once you're done your account will be linked."
         )
         embed.set_author(name=f"Account Verification - {user}", icon_url=client.user.display_avatar.url)
 

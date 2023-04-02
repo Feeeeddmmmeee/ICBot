@@ -36,8 +36,8 @@ class Select(discord.ui.Select):
             )
             embed.set_author(name="Intersection Controller Commands", icon_url=self.client.user.display_avatar.url)
             embed.set_image(url="https://media.discordapp.net/attachments/879324217462632478/1046064114558062683/help.png")
-            embed.add_field(name="<:game:1046100763673382912> IC & Discord:", value="> ` profile ` Displays information about a user's IC account.\n> ` cheats  ` Sends a list of all the available game cheats.\n> ` verify  ` Starts the verification process.\n", inline=False)
-            embed.add_field(name="<:staff:1046098417367142460> Admin:",value="> ` link   ` Links an account to the user.\n> ` unlink ` Removes the linked account from the user.",inline=False)
+            embed.add_field(name="<:game:1046100763673382912> IC & Discord:", value="> ` profile ` Displays information about a user's IC account.\n> ` cheats  ` Sends a list of all the available game cheats.\n> ` verify  ` Starts the verification process.\n> ` search  ` ` [users/maps/colors] ` Searches the specified database.\n> ` submit  ` Adds the specified color to the database.\n> ` suggest ` Sends your suggestion the the suggestion channel.", inline=False)
+            embed.add_field(name="<:staff:1046098417367142460> Admin:",value="> ` link   ` Links an account to the user.\n> ` unlink ` Removes the linked account from the user.\n> ` debug  ` Executes code. Owner only.",inline=False)
             embed.add_field(name="<:folder_emoji:1046075556149596321> Miscellaneous:", value="> ` help ` Sends this embed.\n> ` ping ` Check's the bot's latency.",inline=False)
 
             await interaction.response.edit_message(embed=embed, view=Buttons(self.client))
