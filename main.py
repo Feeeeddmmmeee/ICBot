@@ -133,7 +133,7 @@ async def main():
     else: 
         logger.setLevel(logging.INFO)
 
-    logger.setLevel(logging.INFO)
+    #logger.setLevel(logging.INFO)
 
     handler = logging.StreamHandler()
     formatter = ColoredFormatter("{log_color}[{asctime}] [{levelname}] {name}: {message}", datefmt = date_format, style = "{", log_colors={"INFO": "blue", "WARNING": "yellow", "ERROR": "red", "CRITICAL": "red"})
