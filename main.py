@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from colorlog import ColoredFormatter
 from dotenv import load_dotenv
@@ -53,6 +53,46 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 client = MyClient(DEBUG, command_prefix = commands.when_mentioned_or(""), help_command = None, intents = intents)
+
+def get_index(followers: int) -> int:
+    for i, f in enumerate([1000, 500, 200, 100, 50, 10, 0]):
+        if followers >= f: return 6 - i
+
+async def update_member_roles(followers: int, guild: discord.Guild, member: discord.Member):
+    roles = [discord.utils.get(guild.roles, name=(["Newbie (Below 10 Followers)"] + [f + "+ Followers" for f in ['10', '50', '100', '200', '500', '1000']])[i]) for i in range(7)]
+    index = get_index(followers)
+    await member.add_roles(roles[index])
+    #roles.pop(index)
+    #await member.remove_roles(*roles)
+
+async def update_member(member: discord.Member, guild: discord.Guild, client):
+    logger.debug(f"Starting task for {member}")
+    
+    async with client.connection.cursor() as cursor:
+        await cursor.execute(f"SELECT ic_id FROM accounts WHERE discord_id = {member.id}")
+        data = await cursor.fetchone()
+
+    if data:
+        followers = (await client.ic.get_details_for_user(user_id=data[0])).followers
+        await update_member_roles(followers, guild, member)
+
+    logger.debug(f"Finished task for {member}")
+
+@tasks.loop(seconds=30)
+async def update_roles(client: MyClient):
+    logger.debug(f"Starting loop")
+    guild = client.get_guild(744653826799435806 if DEBUG else 469861886960205824)
+    tasks = []
+    
+    # Create task for each user
+    for member in guild.members:
+        tasks.append(asyncio.create_task(update_member(member, guild, client)))
+    
+    # Wait until all tasks are finished
+    for task in tasks:
+        await task
+
+    logger.debug(f"Finished loop")
 
 @client.command(aliases = ["s"])
 @commands.is_owner()
@@ -117,4 +157,5 @@ if __name__ == "__main__":
     try:
         asyncio.get_event_loop().run_until_complete(main())
     except KeyboardInterrupt:
+        logger.info("Stopping the bot")
         asyncio.run(client.close())

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from main import logger, MyClient
+from main import logger, MyClient, update_roles
 
 import aiosqlite
 
@@ -30,5 +30,7 @@ class OnReady(commands.Cog):
         activity = discord.Activity(name=f"{len(data)} Linked Accounts", type=discord.ActivityType.watching)
         await self.client.change_presence(status=discord.Status.idle, activity=activity)
 
+        update_roles.start(self.client)
+        
 async def setup(client: commands.Bot):
     await client.add_cog(OnReady(client))

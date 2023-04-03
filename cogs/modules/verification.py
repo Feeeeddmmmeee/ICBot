@@ -60,6 +60,9 @@ async def verify(user: tl3api.User, interaction: discord.Interaction, client: co
 
                 activity = discord.Activity(name=f"{len(data)} Linked Accounts", type=discord.ActivityType.watching)
                 await client.change_presence(status=discord.Status.idle, activity=activity)
+                
+                verified = discord.utils.get(interaction.guild.roles, name="Verified")
+                await interaction.user.add_roles(verified)
 
                 await interaction.followup.send("Account successfully linked.", ephemeral=True)
 
@@ -110,6 +113,9 @@ async def verify(user: tl3api.User, interaction: discord.Interaction, client: co
 
                 activity = discord.Activity(name=f"{len(data)} Linked Accounts", type=discord.ActivityType.watching)
                 await client.change_presence(status=discord.Status.idle, activity=activity)
+                
+                verified = discord.utils.get(interaction.guild.roles, name="Verified")
+                await interaction.user.add_roles(verified)
 
                 await interaction.followup.send("Account successfully linked.", ephemeral=True)
 
