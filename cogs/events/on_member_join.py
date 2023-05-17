@@ -9,6 +9,8 @@ class OnMemberJoin(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        if not member.guild.id = self.client.
+
         async with self.client.connection.cursor() as cursor:
             await cursor.execute(f"SELECT * FROM accounts WHERE discord_id = {member.id}")
             data = await cursor.fetchone()
