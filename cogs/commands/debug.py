@@ -20,7 +20,6 @@ def insert_returns(body):
             insert_returns(body[-1].body)
 
 SEND_EMBED = True
-EPHEMERAL_EMBED = False
 class Modal(discord.ui.Modal, title="Debug"):
     def __init__(self, client: MyClient, *args, **kwargs):
         self.client = client
@@ -48,7 +47,7 @@ class Modal(discord.ui.Modal, title="Debug"):
                 color=discord.Color.green()
             )
             
-            await interaction.followup.send(embed=embed, ephemeral=EPHEMERAL_EMBED)
+            await interaction.followup.send(embed=embed)
 
         parsed = ast.parse(body)
         body = parsed.body[0].body
@@ -70,7 +69,6 @@ class Modal(discord.ui.Modal, title="Debug"):
             'logger': logger,
             'send': send,
             'SEND_EMBED': SEND_EMBED,
-            'EPHEMERAL_EMBED': EPHEMERAL_EMBED
         }
         exec(compile(parsed, filename="<ast>", mode="exec"), env)
 
