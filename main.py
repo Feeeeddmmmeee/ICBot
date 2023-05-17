@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 
 from colorlog import ColoredFormatter
 from dotenv import load_dotenv
+from typing import List
 import logging
 import os
 import asyncio
@@ -58,14 +59,17 @@ def get_index(followers: int) -> int:
     for i, f in enumerate([1000, 500, 200, 100, 50, 10, 0]):
         if followers >= f: return 6 - i
 
-async def update_member_roles(followers: int, guild: discord.Guild, member: discord.Member):
-    roles = [discord.utils.get(guild.roles, name=(["Newbie (Below 10 Followers)"] + [f + "+ Followers" for f in ['10', '50', '100', '200', '500', '1000']])[i]) for i in range(7)]
+async def update_member_roles(followers: int, guild: discord.Guild, member: discord.Member, roles: List[discord.Role]):
     index = get_index(followers)
-    await member.add_roles(roles[index])
-    #roles.pop(index)
-    #await member.remove_roles(*roles)
 
-async def update_member(member: discord.Member, guild: discord.Guild, client):
+    roles_to_remove = roles.copy()
+    roles_to_remove.pop(index)
+
+    edit = [role for role in member.roles if role not in roles_to_remove]
+    if not roles[index] in edit: edit.append(roles[index])
+    await member.edit(roles=edit)
+
+async def update_member(member: discord.Member, guild: discord.Guild, client, roles: List[discord.Role]):
     logger.debug(f"Starting task for {member}")
     
     async with client.connection.cursor() as cursor:
@@ -74,7 +78,7 @@ async def update_member(member: discord.Member, guild: discord.Guild, client):
 
     if data:
         followers = (await client.ic.get_details_for_user(user_id=data[0])).followers
-        await update_member_roles(followers, guild, member)
+        await update_member_roles(followers, guild, member, roles)
 
     logger.debug(f"Finished task for {member}")
 
@@ -82,11 +86,12 @@ async def update_member(member: discord.Member, guild: discord.Guild, client):
 async def update_roles(client: MyClient):
     logger.debug(f"Starting loop")
     guild = client.get_guild(744653826799435806 if DEBUG else 469861886960205824)
+    roles = [discord.utils.get(guild.roles, name=(["Newbie (Below 10 Followers)"] + [f + "+ Followers" for f in ['10', '50', '100', '200', '500', '1000']])[i]) for i in range(7)]
     tasks = []
     
     # Create task for each user
     for member in guild.members:
-        tasks.append(asyncio.create_task(update_member(member, guild, client)))
+        tasks.append(asyncio.create_task(update_member(member, guild, client, roles)))
     
     # Wait until all tasks are finished
     for task in tasks:
