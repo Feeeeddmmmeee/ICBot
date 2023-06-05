@@ -67,7 +67,7 @@ async def update_member_roles(followers: int, member: discord.Member, roles: Lis
 
     edit = [role for role in member.roles if role not in roles_to_remove]
     if not roles[index] in edit: edit.append(roles[index])
-    await member.edit(roles=edit)
+    if not edit == member.roles: await member.edit(roles=edit)
 
 async def update_member(member: discord.Member, client, roles: List[discord.Role]):
     logger.debug(f"Starting task for {member}")
@@ -82,7 +82,7 @@ async def update_member(member: discord.Member, client, roles: List[discord.Role
 
     logger.debug(f"Finished task for {member}")
 
-@tasks.loop(seconds=30)
+@tasks.loop(hours=1)
 async def update_roles(client: MyClient):
     logger.debug(f"Starting loop")
     guild = client.get_guild(744653826799435806 if DEBUG else 469861886960205824)
