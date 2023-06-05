@@ -55,11 +55,11 @@ intents.message_content = True
 intents.members = True
 client = MyClient(DEBUG, command_prefix = commands.when_mentioned_or(""), help_command = None, intents = intents)
 
-def get_index(followers: int) -> int:
+def get_index(followers: int):
     for i, f in enumerate([1000, 500, 200, 100, 50, 10, 0]):
         if followers >= f: return 6 - i
 
-async def update_member_roles(followers: int, guild: discord.Guild, member: discord.Member, roles: List[discord.Role]):
+async def update_member_roles(followers: int, member: discord.Member, roles: List[discord.Role]):
     index = get_index(followers)
 
     roles_to_remove = roles.copy()
@@ -69,7 +69,7 @@ async def update_member_roles(followers: int, guild: discord.Guild, member: disc
     if not roles[index] in edit: edit.append(roles[index])
     await member.edit(roles=edit)
 
-async def update_member(member: discord.Member, guild: discord.Guild, client, roles: List[discord.Role]):
+async def update_member(member: discord.Member, client, roles: List[discord.Role]):
     logger.debug(f"Starting task for {member}")
     
     async with client.connection.cursor() as cursor:
@@ -78,7 +78,7 @@ async def update_member(member: discord.Member, guild: discord.Guild, client, ro
 
     if data:
         followers = (await client.ic.get_details_for_user(user_id=data[0])).followers
-        await update_member_roles(followers, guild, member, roles)
+        await update_member_roles(followers, member, roles)
 
     logger.debug(f"Finished task for {member}")
 
@@ -91,7 +91,7 @@ async def update_roles(client: MyClient):
     
     # Create task for each user
     for member in guild.members:
-        tasks.append(asyncio.create_task(update_member(member, guild, client, roles)))
+        tasks.append(asyncio.create_task(update_member(member, client, roles)))
     
     # Wait until all tasks are finished
     for task in tasks:
