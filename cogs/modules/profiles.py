@@ -103,10 +103,16 @@ class Profile(commands.Cog):
             name="See maps",
             callback = self.create_map_info_embed
         )
-        self.client.tree.add_command(self.profile_context_menu_message, guilds=[discord.Object(id=744653826799435806)])
-        self.client.tree.add_command(self.map_context_menu_message, guilds=[discord.Object(id=744653826799435806)])
-        self.client.tree.add_command(self.profile_context_menu_user, guilds=[discord.Object(id=744653826799435806)])
-        self.client.tree.add_command(self.map_context_menu_user, guilds=[discord.Object(id=744653826799435806)])
+        if client.debug:
+            self.client.tree.add_command(self.profile_context_menu_message, guilds=[discord.Object(id=744653826799435806)])
+            self.client.tree.add_command(self.map_context_menu_message, guilds=[discord.Object(id=744653826799435806)])
+            self.client.tree.add_command(self.profile_context_menu_user, guilds=[discord.Object(id=744653826799435806)])
+            self.client.tree.add_command(self.map_context_menu_user, guilds=[discord.Object(id=744653826799435806)])
+        else:
+            self.client.tree.add_command(self.profile_context_menu_message)
+            self.client.tree.add_command(self.map_context_menu_message)
+            self.client.tree.add_command(self.profile_context_menu_user)
+            self.client.tree.add_command(self.map_context_menu_user)
 
     @app_commands.command(name="profile", description="View a user's profile.")
     @app_commands.describe(user = "User whose profile you want to see.")

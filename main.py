@@ -53,7 +53,7 @@ class MyClient(commands.Bot):
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-client = MyClient(DEBUG, command_prefix = commands.when_mentioned_or(""), help_command = None, intents = intents)
+client = MyClient(DEBUG, command_prefix = "!", help_command = None, intents = intents)
 
 def get_index(followers: int):
     for i, f in enumerate([1000, 500, 200, 100, 50, 10, 0]):
