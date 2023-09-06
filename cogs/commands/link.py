@@ -4,7 +4,6 @@ from discord import app_commands
 
 from main import logger, MyClient
 
-import tl3api
 import time
 
 class Link(commands.Cog):
@@ -47,6 +46,8 @@ class Link(commands.Cog):
             await cursor.execute(f"SELECT * FROM accounts")
             data = await cursor.fetchall()
 
+        await user.add_roles(discord.utils.get(interaction.guild.roles, name="Verified"))
+        
         activity = discord.Activity(name=f"{len(data)} Linked Accounts", type=discord.ActivityType.watching)
         await self.client.change_presence(status=discord.Status.idle, activity=activity)
 
