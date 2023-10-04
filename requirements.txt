@@ -2,6 +2,6 @@ aiohttp==3.8.5
 aiosqlite==0.18.0
 colorlog==6.7.0
 discord.py==2.2.2
-Pillow==9.5.0
+Pillow==10.0.1
 python-dotenv==1.0.0
 tl3api==1.2.0
