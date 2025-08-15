@@ -26,4 +26,4 @@ All configuration is done in the `config/config.env` file. Not much can be confi
 ### Bot Token
 The bot token has to be put in the `TOKEN` variable. 
 ### Debug Mode
-Debug mode can be toggled by altering the `DEBUG` variable. Setting it to 1 enables additional log messages and changes which Discord server is considered the main one. 
+Debug mode can be toggled by altering the `DEBUG` variable. Setting it to 1 enables additional log messages and changes which Discord server is considered the main one. 0 is supposed to be a release mode with less clutter in the logs and proper server settings.
