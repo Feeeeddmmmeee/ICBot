@@ -18,7 +18,7 @@ logger = logging.getLogger("discord")
 # getting environment variables
 load_dotenv(dotenv_path = r"./config/config.env")
 TOKEN = os.getenv("TOKEN") 
-DEBUG = os.getenv("DEBUG") == 0
+DEBUG = os.getenv("DEBUG") == "1"
 
 # creating the client
 class MyClient(commands.Bot):
