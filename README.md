@@ -11,7 +11,7 @@ Then set up all the required configuration files.
 mkdir config
 touch ./config/config.env
 echo "TOKEN={YOUR_ACTUAL_TOKEN}" >> ./config/config.env
-echo "DEBUG=1" >> .config/config.env
+echo "DEBUG=1" >> ./config/config.env
 ```
 Lastly create a virtual environment, download all required packages and run the project :).
 ```sh
